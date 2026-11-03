@@ -1,0 +1,15 @@
+# Python
+__pycache__/
+*.py[cod]
+.pytest_cache/
+.venv/
+venv/
+
+# Environment and secrets
+.env
+
+# Local tooling
+.idea/
+.vscode/
+.DS_Store
+Thumbs.db
