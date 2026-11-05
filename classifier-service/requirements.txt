@@ -1,1 +1,6 @@
-# Add runtime and test dependencies when the service implementation is selected.
+fastapi>=0.110
+uvicorn[standard]>=0.29
+transformers>=4.40
+torch>=2.2
+pytest>=8.0
+httpx>=0.27
