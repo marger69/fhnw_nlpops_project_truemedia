@@ -5,10 +5,10 @@ __pycache__/
 .venv/
 venv/
 
-# Environment and secrets
+# Umgebung und Geheimnisse
 .env
 
-# Local tooling
+# Lokale Werkzeuge
 .idea/
 .vscode/
 .DS_Store

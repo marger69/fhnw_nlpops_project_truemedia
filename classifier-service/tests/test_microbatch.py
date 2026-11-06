@@ -2,17 +2,19 @@
 
 import asyncio
 
+from src.metrics import ServiceMetrics
 from src.microbatch import MicroBatcher
 
 
 def make_batcher(window_ms, max_size):
     batches = []
+    metrics = ServiceMetrics()
 
     def classify_batch(comments):
         batches.append(list(comments))
         return [(c, 1.0) for c in comments]
 
-    return MicroBatcher(classify_batch, window_ms, max_size), batches
+    return MicroBatcher(classify_batch, window_ms, max_size, metrics), batches
 
 
 def test_window_expiry_classifies_collected_comments_together():

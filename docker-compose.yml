@@ -1,2 +1,38 @@
-# Add the classifier, Prometheus, and Grafana services as their configurations
-# are implemented.
+services:
+  classifier-service:
+    build:
+      context: ./classifier-service
+    ports:
+      - "127.0.0.1:8000:8000"
+    volumes:
+      - model_cache:/root/.cache/huggingface
+    restart: unless-stopped
+
+  prometheus:
+    image: prom/prometheus:v3.5.0
+    ports:
+      - "127.0.0.1:9090:9090"
+    volumes:
+      - ./monitoring/prometheus/prometheus.yml:/etc/prometheus/prometheus.yml:ro
+      - prometheus_data:/prometheus
+    depends_on:
+      - classifier-service
+    restart: unless-stopped
+
+  grafana:
+    image: grafana/grafana:12.1.1
+    ports:
+      - "127.0.0.1:3000:3000"
+    volumes:
+      - grafana_data:/var/lib/grafana
+      - ./monitoring/grafana/provisioning/datasources:/etc/grafana/provisioning/datasources:ro
+      - ./monitoring/grafana/provisioning/dashboards:/etc/grafana/provisioning/dashboards:ro
+      - ./monitoring/grafana/dashboards:/var/lib/grafana/dashboards:ro
+    depends_on:
+      - prometheus
+    restart: unless-stopped
+
+volumes:
+  model_cache:
+  prometheus_data:
+  grafana_data:

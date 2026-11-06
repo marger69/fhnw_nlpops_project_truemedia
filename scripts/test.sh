@@ -1,4 +1,4 @@
 #!/usr/bin/env bash
 set -euo pipefail
 
-# Test command will be added with the service implementation.
+# Der Testbefehl wird mit der Implementierung des Dienstes ergänzt.

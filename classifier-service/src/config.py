@@ -11,8 +11,6 @@ LABELS = [
     "Off-Topic-Kommentar",
     "Empörung oder Rant",
     "Desinformation oder Verschwörung",
-    "Toxisch oder beleidigend",
-    "Neutral",
 ]
 
 HYPOTHESIS_TEMPLATE = os.getenv("HYPOTHESIS_TEMPLATE", "Dieser Kommentar ist {}.")

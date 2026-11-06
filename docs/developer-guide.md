@@ -29,6 +29,39 @@ uvicorn src.main:app --reload
 
 Der Service läuft auf `http://localhost:8000`. Das Modell wird erst beim ersten Request geladen, der erste Aufruf dauert daher länger.
 
+## Monitoring-Stack mit Docker Compose starten
+
+Im Projektverzeichnis:
+
+```powershell
+docker compose up --build
+```
+
+Der erste Start baut den Classifier-Container; das Modell wird bei der ersten
+Klassifikation heruntergeladen und im Docker-Volume `model_cache` gespeichert.
+Die Monitoring-Daten bleiben in den Volumes `prometheus_data` und `grafana_data`
+erhalten.
+
+| Dienst | Adresse |
+|---|---|
+| Classifier-API | `http://localhost:8000` |
+| Prometheus | `http://localhost:9090` |
+| Grafana | `http://localhost:3000` |
+
+Prometheus scrapt den Classifier unter `classifier-service:8000/metrics`.
+Grafana ist vorkonfiguriert und verwendet Prometheus als Datenquelle. Beim
+ersten Grafana-Login gelten die lokalen Standard-Zugangsdaten `admin` / `admin`;
+Grafana fordert zum Ändern des Passworts auf.
+Das Dashboard «NLP Microbatching» wird automatisch provisioniert und enthält
+Panels für Durchsatz, Batch-Grösse, Inference- und Wartezeit, Queue-Grösse sowie
+die Verteilung der vorhergesagten Labels.
+
+Zum Beenden im Terminal `Ctrl+C` drücken; alternativ im Projektverzeichnis:
+
+```powershell
+docker compose down
+```
+
 Mit Docker:
 
 ```powershell
@@ -69,6 +102,12 @@ curl -X POST http://localhost:8000/classify -H "Content-Type: application/json" 
 
 Liefert `{"status": "ok"}`.
 
+### `GET /metrics`
+
+Stellt Prometheus-Metriken für klassifizierte Kommentare, Microbatches,
+Batch-Grösse, Inference-Dauer, Batch-Wartezeit, Queue-Grösse und vorhergesagte
+Labels im Prometheus-Textformat bereit.
+
 ## Tests
 
 Im Verzeichnis `classifier-service`:
@@ -87,7 +126,7 @@ Die Tests verwenden eine Fake-Pipeline. Das Modell wird dafür nicht geladen, ei
 | `src/microbatch.py` | `MicroBatcher`: sammelt Kommentare und verarbeitet sie gemeinsam |
 | `src/classifier.py` | `Classifier`: Zero-Shot-Klassifikation, `classify_batch` |
 | `src/config.py` | Modell, Labels, Batch-Parameter |
-| `src/metrics.py` | Platzhalter für Metriken (noch nicht implementiert) |
+| `src/metrics.py` | Definition der Prometheus-Metriken |
 
 Ablauf eines Requests:
 
@@ -123,4 +162,6 @@ Die Labels stehen in `LABELS` in `src/config.py`. Bei einer Änderung auch die L
 
 ## Aktueller Stand
 
-Noch nicht implementiert sind Metriken (`src/metrics.py`), `docker-compose.yml`, Prometheus/Grafana-Konfiguration, Lasttest und die Skripte unter `scripts/`.
+Implementiert sind der Compose-Stack mit Classifier, Prometheus und Grafana
+sowie die Prometheus-Datenquelle und das provisionierte Grafana-Dashboard.
+Noch offen sind Lasttest und die Skripte unter `scripts/`.

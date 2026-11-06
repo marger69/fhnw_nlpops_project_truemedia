@@ -23,11 +23,26 @@ Die Klassifikation erfolgt mittels Zero-Shot Classification (`facebook/bart-larg
 
 ## Schnellstart
 
+### Lokal mit Python
+
 ```powershell
 cd classifier-service
 pip install -r requirements.txt
 uvicorn src.main:app
 ```
+
+### Mit Docker Compose
+
+Im Projektverzeichnis starten:
+
+```powershell
+docker compose up --build
+```
+
+Die API ist unter `http://localhost:8000`, Prometheus unter
+`http://localhost:9090` und Grafana unter `http://localhost:3000` erreichbar.
+Grafana verwendet Prometheus automatisch als Datenquelle. Details stehen in der
+[Entwickleranleitung](docs/developer-guide.md).
 
 Beispiel:
 
@@ -57,8 +72,6 @@ Details zu Konfiguration, Tests und Code-Aufbau: [Entwickleranleitung](docs/deve
 | 4 | Off-Topic-Kommentar | Kein Bezug zum Artikelthema, inkl. Spam und Werbung | „Jetzt klicken und Geld gewinnen!“ |
 | 5 | Empörung oder Rant | Emotionale Wut- oder Frustäusserung | „Ich habe den Artikel nicht gelesen, aber ich bin trotzdem dagegen.“ |
 | 6 | Desinformation oder Verschwörung | Falschbehauptungen oder Verschwörungsnarrative | „Das wird alles von oben gesteuert, die Medien lügen.“ |
-| 7 | Toxisch oder beleidigend | Beleidigung, Drohung, Hassrede oder vulgäre Sprache | „Du bist ein Idiot.“ |
-| 8 | Neutral | Unproblematischer Kommentar ohne besondere Merkmale | „Ich sehe das etwas anders.“ |
 
 ## Projektstruktur
 
@@ -71,6 +84,7 @@ Details zu Konfiguration, Tests und Code-Aufbau: [Entwickleranleitung](docs/deve
 └── scripts/               # Start- und Testskripte
 ```
 
-Implementiert sind `classifier-service/` (inkl. Microbatching und Tests) und die Entwickleranleitung in `docs/`.
-Die übrigen Dateien (Metriken, `docker-compose.yml`, Monitoring, Lasttest, Skripte, weitere Dokumente) sind noch Gerüste.
-
+Implementiert sind `classifier-service/` (inkl. Microbatching, Metriken und Tests),
+der Compose-Stack mit Prometheus/Grafana sowie die Entwickleranleitung in `docs/`.
+Das Grafana-Dashboard ist provisioniert. Lasttest, Dashboard-Screenshot und
+Skripte sind noch offen.

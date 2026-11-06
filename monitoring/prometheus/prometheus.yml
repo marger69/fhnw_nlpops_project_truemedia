@@ -1,1 +1,9 @@
-# Prometheus scrape configuration will be added with the metrics endpoint.
+global:
+  scrape_interval: 15s
+
+scrape_configs:
+  - job_name: "classifier"
+    metrics_path: /metrics
+    static_configs:
+      - targets:
+          - "classifier-service:8000"

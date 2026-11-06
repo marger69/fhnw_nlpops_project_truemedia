@@ -1,1 +1,1 @@
-// Load-test scenarios will be added with the classifier API.
+// Szenarien für Lasttests werden mit der Klassifikator-API ergänzt.

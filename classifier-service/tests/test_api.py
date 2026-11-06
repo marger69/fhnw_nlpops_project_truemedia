@@ -17,12 +17,25 @@ main.classifier = Classifier(pipeline=fake_pipeline)
 def test_classify_returns_label_and_score():
     with TestClient(main.app) as client:
         response = client.post("/classify", json={"comment": "Ich bin dagegen."})
+        metrics = client.get("/metrics")
     assert response.status_code == 200
     assert response.json() == {
         "comment": "Ich bin dagegen.",
         "label": "Empörung oder Rant",
         "score": 0.72,
     }
+    assert metrics.status_code == 200
+    assert "text/plain" in metrics.headers["content-type"]
+    for metric in (
+        "comments_classified_total",
+        "batches_processed_total",
+        "batch_size_count",
+        "batch_inference_duration_seconds_count",
+        "batch_wait_time_seconds_count",
+        "microbatch_queue_size",
+        'comments_classified_by_label_total{label="Empörung oder Rant"}',
+    ):
+        assert metric in metrics.text
 
 
 def test_classify_rejects_blank_comment():

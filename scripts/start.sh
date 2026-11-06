@@ -1,4 +1,4 @@
 #!/usr/bin/env bash
 set -euo pipefail
 
-# Start command will be added with the service implementation.
+# Der Startbefehl wird mit der Implementierung des Dienstes ergänzt.

@@ -3,17 +3,21 @@
 from contextlib import asynccontextmanager
 
 from fastapi import FastAPI
+from prometheus_client import make_asgi_app
 from pydantic import BaseModel, field_validator
 
 from src import config
 from src.classifier import Classifier
+from src.metrics import ServiceMetrics
 from src.microbatch import MicroBatcher
 
 classifier = Classifier()
+metrics = ServiceMetrics()
 batcher = MicroBatcher(
     lambda comments: classifier.classify_batch(comments),
     config.BATCH_WINDOW_MS,
     config.MAX_BATCH_SIZE,
+    metrics,
 )
 
 
@@ -25,6 +29,7 @@ async def lifespan(_: FastAPI):
 
 
 app = FastAPI(title="Comment Classifier", lifespan=lifespan)
+app.mount("/metrics", make_asgi_app(registry=metrics.registry))
 
 
 class ClassifyRequest(BaseModel):

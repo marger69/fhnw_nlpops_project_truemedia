@@ -19,7 +19,7 @@ class Classifier:
         return self._pipeline
 
     def classify_batch(self, comments: List[str]) -> List[Tuple[str, float]]:
-        # One pipeline call for the whole batch; batch_size covers all comment/label pairs.
+        # Ein Pipeline-Aufruf für den gesamten Stapel; batch_size berücksichtigt alle Kommentar-/Label-Paare.
         results = self._get_pipeline()(
             comments,
             candidate_labels=config.LABELS,
