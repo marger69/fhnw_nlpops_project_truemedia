@@ -3,7 +3,7 @@ import { check } from 'k6';
 import http from 'k6/http';
 import { Counter, Rate, Trend } from 'k6/metrics';
 
-const BASE_URL = 'http://host.docker.internal:8000';
+const BASE_URL = __ENV.BASE_URL || 'http://host.docker.internal:8000';
 
 export const requestsCompleted = new Counter('requests_completed');
 export const requestsFailed = new Counter('requests_failed');

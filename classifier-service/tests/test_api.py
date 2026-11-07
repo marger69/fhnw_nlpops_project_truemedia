@@ -17,7 +17,7 @@ main.classifier = Classifier(pipeline=fake_pipeline)
 def test_classify_returns_label_and_score():
     with TestClient(main.app) as client:
         response = client.post("/classify", json={"comment": "Ich bin dagegen."})
-        metrics = client.get("/metrics")
+        metrics = client.get("/metrics", follow_redirects=False)
     assert response.status_code == 200
     assert response.json() == {
         "comment": "Ich bin dagegen.",
@@ -25,6 +25,7 @@ def test_classify_returns_label_and_score():
         "score": 0.72,
     }
     assert metrics.status_code == 200
+    assert "location" not in metrics.headers
     assert "text/plain" in metrics.headers["content-type"]
     for metric in (
         "comments_classified_total",

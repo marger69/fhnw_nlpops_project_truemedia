@@ -2,8 +2,8 @@
 
 from contextlib import asynccontextmanager
 
-from fastapi import FastAPI
-from prometheus_client import make_asgi_app
+from fastapi import FastAPI, Response
+from prometheus_client import CONTENT_TYPE_LATEST, generate_latest
 from pydantic import BaseModel, field_validator
 
 from src import config
@@ -29,7 +29,6 @@ async def lifespan(_: FastAPI):
 
 
 app = FastAPI(title="Comment Classifier", lifespan=lifespan)
-app.mount("/metrics", make_asgi_app(registry=metrics.registry))
 
 
 class ClassifyRequest(BaseModel):
@@ -52,6 +51,14 @@ class ClassifyResponse(BaseModel):
 @app.get("/health")
 def health() -> dict:
     return {"status": "ok"}
+
+
+@app.get("/metrics", include_in_schema=False)
+def get_metrics() -> Response:
+    return Response(
+        content=generate_latest(metrics.registry),
+        media_type=CONTENT_TYPE_LATEST,
+    )
 
 
 @app.post("/classify", response_model=ClassifyResponse)

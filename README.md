@@ -94,5 +94,7 @@ Details zu Konfiguration, Tests und Code-Aufbau: [Entwickleranleitung](docs/deve
 Implementiert sind `classifier-service/` (inkl. Microbatching, Metriken und Tests),
 der Compose-Stack mit Prometheus/Grafana sowie die Entwickleranleitung in `docs/`.
 Das Grafana-Dashboard ist provisioniert. Ein PowerShell-Skript zum Starten von
-Docker Desktop und dem Compose-Stack ist vorhanden. Lasttest,
-Dashboard-Screenshot und weitere Skripte sind noch offen.
+Docker Desktop und dem Compose-Stack sowie ein k6-Lasttest sind vorhanden. Ein
+Grafana-Dashboard-Screenshot mit Messwerten aus einem Lasttest liegt unter
+[docs/screenshots/grafana-loadtest.png](docs/screenshots/grafana-loadtest.png);
+siehe auch die [Lasttest-Anleitung](docs/developer-guide.md#lasttest-mit-k6).

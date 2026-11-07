@@ -132,7 +132,7 @@ powershell -NoProfile -ExecutionPolicy Bypass -File .\scripts\start-monitoring.p
 
 | Dienst | Adresse |
 |---|---|
-| Classifier-API | `http://localhost:8000` |
+| Classifier-API | `http://localhost:8000`, `http://127.0.0.1:8000/docs` |
 | Prometheus | `http://localhost:9090` |
 | Grafana | `http://localhost:3000` |
 
@@ -202,17 +202,17 @@ beschrieben und lass das Stack-Terminal geöffnet.
 damit das Modell vor dem Lasttest geladen wird:
 
 ```powershell
-cd .\classifier-service
 Invoke-RestMethod -Uri http://localhost:8000/classify -Method Post `
   -ContentType 'application/json' `
-  -Body '{"comment":"Das ist ein Super Bericht!"}'
+  -Body '{"comment":"Ich habe den Artikel nicht gelesen, aber ich bin trotzdem dagegen."}'
 ```
 
 Beim ersten Aufruf können Download und Laden des Modells länger dauern.
 
 ### 2. Lasttest ausführen
 
-Führe den Befehl weiterhin im Projektverzeichnis aus:
+Führe den Befehl im Projektverzeichnis aus. Das Skript wird per Pipe an den
+k6-Container übergeben; es wird kein lokaler k6-Client benötigt.
 
 ```powershell
 Get-Content .\loadtest\loadtest.js -Raw |
@@ -224,6 +224,9 @@ docker run --rm -i `
   grafana/k6 run -
 ```
 
+Standardmässig sendet k6 an `http://host.docker.internal:8000`. Bei Bedarf kann
+die Zieladresse mit der Umgebungsvariable `BASE_URL` überschrieben werden.
+
 Öffne während des Tests das k6-Dashboard unter `http://localhost:5665`. Der
 Port 5665 muss frei sein. Nach dem Test zeigt k6 die Zusammenfassung im
 Terminal an und beendet den Container.
@@ -232,6 +235,13 @@ Der Test sendet 60 Sekunden lang Anfragen mit 50 virtuellen Nutzern an
 `POST /classify`. Er verlangt eine Erfolgsrate von mehr als 95 % und eine
 95-Perzentil-Antwortzeit unter 3000 ms. Werden die Schwellen nicht erreicht,
 meldet k6 den Test als fehlgeschlagen.
+
+### 3. Grafana-Screenshot für die Abgabe
+
+Öffne während des Lasttests das Dashboard «NLP Microbatching» unter
+`http://localhost:3000/d/nlp-microbatching/nlp-microbatching?refresh=5s`.
+Warte, bis die Panels Messwerte anzeigen, und erstelle einen Screenshot des
+Dashboards. Lege die Bilddatei unter `docs/screenshots/` ab.
 
 ## Konfiguration
 
