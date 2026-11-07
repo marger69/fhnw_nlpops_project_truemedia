@@ -142,6 +142,52 @@ python -m pytest
 
 Die Tests verwenden eine Fake-Pipeline. Das Modell wird dafür nicht geladen, ein Download ist nicht nötig.
 
+## Lasttest mit k6
+
+Der Lasttest in [loadtest/loadtest.js](../loadtest/loadtest.js) benötigt Docker
+Desktop mit laufender Linux-Engine und eine laufende Classifier-API auf Port
+8000. `host.docker.internal` verbindet den k6-Container mit dem Host; das
+Beispiel ist für Docker Desktop unter Windows vorgesehen.
+
+1. Starte den Monitoring-Stack im Projektverzeichnis, falls er noch nicht läuft:
+
+   ```powershell
+   docker compose up --build -d
+   ```
+
+2. Sende vor dem Lasttest eine Anfrage, damit das Modell geladen wird. Beim
+   ersten Aufruf kann der Download und das Laden länger dauern:
+
+   ```powershell
+   Invoke-RestMethod -Uri http://localhost:8000/classify -Method Post `
+     -ContentType 'application/json' `
+     -Body '{"comment":"Das ist ein Super Bericht!"}'
+   ```
+
+3. Starte den Lasttest in PowerShell **im Projektverzeichnis**:
+
+   ```powershell
+   Get-Content .\loadtest\loadtest.js -Raw |
+   docker run --rm -i `
+     -p 127.0.0.1:5665:5665 `
+     -e K6_WEB_DASHBOARD=true `
+     -e K6_WEB_DASHBOARD_HOST=0.0.0.0 `
+     -e K6_WEB_DASHBOARD_PORT=5665 `
+     grafana/k6 run -
+   ```
+
+   Öffne während des Tests das k6-Dashboard unter `http://localhost:5665`.
+   Nach dem Test zeigt k6 die Zusammenfassung im Terminal an; der Container und
+   das Dashboard werden beendet. Der Port 5665 muss frei sein.
+
+Das Skript sendet während 60 Sekunden mit 50 virtuellen Nutzern Anfragen an
+`POST /classify`. Eine Anfrage gilt als erfolgreich, wenn sie den Status 200
+und ein JSON-Objekt mit einem String `label` und einer Zahl `score` liefert.
+Der Test verlangt eine Erfolgsrate von mehr als 95 % und eine
+95-Perzentil-Antwortzeit unter 3000 ms. Werden die Schwellen nicht erreicht,
+meldet k6 den Test als fehlgeschlagen. Die Metriken können zusätzlich im
+Grafana-Dashboard beobachtet werden.
+
 ## Aufbau des Codes
 
 | Datei | Aufgabe |
@@ -187,5 +233,5 @@ Die Labels stehen in `LABELS` in `src/config.py`. Bei einer Änderung auch die L
 ## Aktueller Stand
 
 Implementiert sind der Compose-Stack mit Classifier, Prometheus und Grafana
-sowie die Prometheus-Datenquelle und das provisionierte Grafana-Dashboard.
-Noch offen sind Lasttest und die Skripte unter `scripts/`.
+sowie die Prometheus-Datenquelle, das provisionierte Grafana-Dashboard und ein
+k6-Lasttest. Noch offen sind die Skripte unter `scripts/`.
