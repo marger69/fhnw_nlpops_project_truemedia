@@ -1,3 +1,0 @@
-# Architektur
-
-Architekturbeschreibung folgt.

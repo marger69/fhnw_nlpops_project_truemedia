@@ -27,17 +27,24 @@ Die Klassifikation erfolgt mittels Zero-Shot Classification (`facebook/bart-larg
 
 ```powershell
 cd classifier-service
-pip install -r requirements.txt
-uvicorn src.main:app
+python -m venv .venv
+.\.venv\Scripts\python.exe -m pip install -r requirements.txt
+.\.venv\Scripts\python.exe -m uvicorn src.main:app
 ```
+
+Die virtuelle Umgebung muss nicht aktiviert werden; dadurch ist keine Änderung
+der PowerShell-Skriptausführungsrichtlinie nötig.
 
 ### Mit Docker Compose
 
 Im Projektverzeichnis starten:
 
 ```powershell
-docker compose up --build
+powershell -NoProfile -ExecutionPolicy Bypass -File .\scripts\start-monitoring.ps1
 ```
+
+Das Skript startet Docker Desktop bei Bedarf, wartet auf die Engine und führt
+anschliessend `docker compose up --build` aus.
 
 Die API ist unter `http://localhost:8000`, Prometheus unter
 `http://localhost:9090` und Grafana unter `http://localhost:3000` erreichbar.
@@ -86,5 +93,6 @@ Details zu Konfiguration, Tests und Code-Aufbau: [Entwickleranleitung](docs/deve
 
 Implementiert sind `classifier-service/` (inkl. Microbatching, Metriken und Tests),
 der Compose-Stack mit Prometheus/Grafana sowie die Entwickleranleitung in `docs/`.
-Das Grafana-Dashboard ist provisioniert. Lasttest, Dashboard-Screenshot und
-Skripte sind noch offen.
+Das Grafana-Dashboard ist provisioniert. Ein PowerShell-Skript zum Starten von
+Docker Desktop und dem Compose-Stack ist vorhanden. Lasttest,
+Dashboard-Screenshot und weitere Skripte sind noch offen.

@@ -1,70 +1,134 @@
 # Entwickleranleitung
 
-Diese Anleitung beschreibt, wie der Klassifikationsservice lokal eingerichtet, gestartet, getestet und angepasst wird.
+Diese Anleitung führt durch Einrichtung, Start, Test und Verwendung des
+Klassifikationsservices. Wähle entweder den lokalen Python-Start oder den
+Docker-Compose-Start.
 
 ## Voraussetzungen
 
-- Python 3.11 oder neuer
-- Internetzugang beim ersten Start (das Modell `facebook/bart-large-mnli` wird von Hugging Face geladen, ca. 1.6 GB)
-- Optional: Docker
+- Python 3.11 oder neuer für den lokalen Start
+- Docker Desktop mit gestarteter Linux-Engine für Docker Compose und den k6-Lasttest
+- Internetzugang beim ersten Start: Das Modell `facebook/bart-large-mnli` wird
+  von Hugging Face geladen (ca. 1.6 GB)
 
-## Einrichtung
+## Variante A: lokal mit Python starten
+
+### 1. Abhängigkeiten installieren
+
+Führe die Befehle im Projektverzeichnis aus.
+
+**Windows (PowerShell):**
 
 ```powershell
 cd classifier-service
 python -m venv .venv
-.venv\Scripts\Activate.ps1
-pip install -r requirements.txt
+.\.venv\Scripts\python.exe -m pip install -r requirements.txt
 ```
 
-Unter Linux/macOS: `source .venv/bin/activate`.
+Die Umgebung muss nicht aktiviert werden. So ist keine Änderung der PowerShell-
+Skriptausführungsrichtlinie erforderlich.
 
-## Service starten
+**Linux/macOS:**
 
-Im Verzeichnis `classifier-service`:
-
-```powershell
-uvicorn src.main:app --reload
-```
-
-Der Service läuft auf `http://localhost:8000`. Das Modell wird erst beim ersten Request geladen, der erste Aufruf dauert daher länger.
-
-### Probleme mit der virtuellen Umgebung unter Windows
-
-Virtuelle Umgebungen enthalten absolute Pfade und sollten nach einem Verschieben
-des Projekts neu erstellt werden. Meldet der Uvicorn-Launcher einen nicht mehr
-vorhandenen Python-Pfad, verwende eine neu erstellte Umgebung.
-
-Bei sehr langen Projektpfaden kann die Installation zudem an der Windows-
-Pfadlängenbegrenzung scheitern. Erstelle die Umgebung dann an einem kurzen
-Pfad ausserhalb des Projektverzeichnisses. Das folgende Beispiel setzt voraus,
-dass der Zielordner noch nicht existiert und keine andere Umgebung aktiv ist:
-
-```powershell
+```sh
 cd classifier-service
-python -m venv "$env:USERPROFILE\.virtualenvs\truemedia"
-$env:PATH = "$env:USERPROFILE\.virtualenvs\truemedia\Scripts;$env:PATH"
-python -m pip install -r requirements.txt
-uvicorn src.main:app --reload
+python3 -m venv .venv
+.venv/bin/python -m pip install -r requirements.txt
 ```
 
-Die PATH-Änderung gilt nur für das aktuelle Terminal und muss in einem neuen
-Terminal wiederholt werden. In VS Code sollte zusätzlich die `Scripts\python.exe`
-der neuen Umgebung als Interpreter ausgewählt werden. Eine bestehende `.venv`
-wird durch diese Schritte nicht verändert.
+### 2. Service starten
 
-## Monitoring-Stack mit Docker Compose starten
+Führe den Startbefehl im selben Terminal aus, in dem du die Abhängigkeiten
+installiert hast:
 
-Im Projektverzeichnis:
+**Windows (PowerShell):**
 
 ```powershell
-docker compose up --build
+.\.venv\Scripts\python.exe -m uvicorn src.main:app --reload
 ```
 
-Der erste Start baut den Classifier-Container; das Modell wird bei der ersten
-Klassifikation heruntergeladen und im Docker-Volume `model_cache` gespeichert.
-Die Monitoring-Daten bleiben in den Volumes `prometheus_data` und `grafana_data`
-erhalten.
+**Linux/macOS:**
+
+```sh
+.venv/bin/python -m uvicorn src.main:app --reload
+```
+
+Lass dieses Terminal geöffnet. Der Service ist unter `http://localhost:8000`
+erreichbar. Beim ersten Klassifikationsaufruf wird das Modell geladen; das kann
+etwas länger dauern.
+
+### 3. Service prüfen
+
+Öffne ein zweites Terminal und rufe den Health-Endpunkt auf.
+
+**Windows (PowerShell):**
+
+```powershell
+Invoke-RestMethod http://localhost:8000/health
+```
+
+**Linux/macOS:**
+
+```sh
+curl http://localhost:8000/health
+```
+
+Als Antwort sollte `status: ok` erscheinen. Für einen Klassifikationstest in
+PowerShell:
+
+```powershell
+Invoke-RestMethod -Uri http://localhost:8000/classify -Method Post `
+  -ContentType 'application/json' `
+  -Body '{"comment":"Das ist ein Super Bericht!"}'
+```
+
+### 4. Tests ausführen
+
+Stoppe zuerst den Service mit `Ctrl+C`. Führe danach im Verzeichnis
+`classifier-service` die Tests aus:
+
+**Windows (PowerShell):**
+
+```powershell
+cd .\classifier-service
+.\.venv\Scripts\python.exe -m pytest
+```
+
+**Linux/macOS:**
+
+```sh
+.venv/bin/python -m pytest
+```
+
+Die Tests verwenden eine Fake-Pipeline. Das Modell wird nicht geladen und muss
+für die Tests nicht heruntergeladen werden.
+
+## Variante B: Monitoring-Stack mit Docker Compose starten
+
+Diese Variante startet den Classifier, Prometheus und Grafana zusammen.
+
+### 1. Stack starten
+
+Führe den Befehl im Projektverzeichnis in PowerShell aus:
+
+```powershell
+cd .\scripts
+powershell -NoProfile -ExecutionPolicy Bypass -File .\scripts\start-monitoring.ps1
+```
+
+Das Skript startet Docker Desktop, falls es noch nicht läuft, wartet auf die
+Docker Engine und führt anschliessend `docker compose up --build` aus. Die
+Ausführungsrichtlinie `Bypass` gilt nur für den gestarteten PowerShell-Prozess.
+Das Terminal bleibt geöffnet, solange der Stack läuft.
+
+Falls Docker Desktop länger zum Starten braucht, kannst du das Zeitlimit
+erhöhen, zum Beispiel auf 300 Sekunden:
+
+```powershell
+powershell -NoProfile -ExecutionPolicy Bypass -File .\scripts\start-monitoring.ps1 -StartupTimeoutSeconds 300
+```
+
+### 2. Dienste öffnen
 
 | Dienst | Adresse |
 |---|---|
@@ -72,39 +136,39 @@ erhalten.
 | Prometheus | `http://localhost:9090` |
 | Grafana | `http://localhost:3000` |
 
-Prometheus scrapt den Classifier unter `classifier-service:8000/metrics`.
-Grafana ist vorkonfiguriert und verwendet Prometheus als Datenquelle. Beim
-ersten Grafana-Login gelten die lokalen Standard-Zugangsdaten `admin` / `admin`;
-Grafana fordert zum Ändern des Passworts auf.
-Das Dashboard «NLP Microbatching» wird automatisch provisioniert und enthält
-Panels für Durchsatz, Batch-Grösse, Inference- und Wartezeit, Queue-Grösse sowie
-die Verteilung der vorhergesagten Labels.
+Beim ersten Klassifikationsaufruf lädt der Classifier das Modell. Die Daten
+werden im Docker-Volume `model_cache` gespeichert. Prometheus liest die
+Metriken intern unter `classifier-service:8000/metrics`; die Adresse ist für
+die Kommunikation zwischen den Compose-Diensten bestimmt.
 
-Zum Beenden im Terminal `Ctrl+C` drücken; alternativ im Projektverzeichnis:
+Grafana verwendet Prometheus automatisch als Datenquelle. Beim ersten Login
+lauten die lokalen Standard-Zugangsdaten `admin` / `admin`; Grafana fordert
+dazu auf, das Passwort zu ändern. Das Dashboard «NLP Microbatching» wird
+automatisch bereitgestellt.
+
+### 3. Stack stoppen
+
+Drücke im Terminal, in dem der Stack läuft, `Ctrl+C`. Alternativ öffne ein
+zweites PowerShell-Terminal im Projektverzeichnis und führe aus:
 
 ```powershell
 docker compose down
 ```
 
-Mit Docker:
+Die Monitoring-Daten bleiben in den Volumes `prometheus_data` und
+`grafana_data` erhalten.
 
-```powershell
-cd classifier-service
-docker build -t classifier-service .
-docker run -p 8000:8000 classifier-service
-```
-
-## API
+## API verwenden
 
 ### `POST /classify`
 
-Request:
+Beispielrequest:
 
 ```json
 { "comment": "Ich habe den Artikel nicht gelesen, aber ich bin trotzdem dagegen." }
 ```
 
-Response:
+Beispielantwort:
 
 ```json
 {
@@ -116,100 +180,63 @@ Response:
 
 Leere oder fehlende Kommentare ergeben den Status 422.
 
-Beispielaufruf:
-
-```powershell
-curl -X POST http://localhost:8000/classify -H "Content-Type: application/json" -d '{\"comment\": \"Super Artikel!\"}'
-```
-
 ### `GET /health`
 
-Liefert `{"status": "ok"}`.
+Liefert `{"status": "ok"}`, wenn der Service erreichbar ist.
 
 ### `GET /metrics`
 
-Stellt Prometheus-Metriken für klassifizierte Kommentare, Microbatches,
+Liefert Prometheus-Metriken für klassifizierte Kommentare, Microbatches,
 Batch-Grösse, Inference-Dauer, Batch-Wartezeit, Queue-Grösse und vorhergesagte
-Labels im Prometheus-Textformat bereit.
-
-## Tests
-
-Im Verzeichnis `classifier-service`:
-
-```powershell
-python -m pytest
-```
-
-Die Tests verwenden eine Fake-Pipeline. Das Modell wird dafür nicht geladen, ein Download ist nicht nötig.
+Labels.
 
 ## Lasttest mit k6
 
-Der Lasttest in [loadtest/loadtest.js](../loadtest/loadtest.js) benötigt Docker
-Desktop mit laufender Linux-Engine und eine laufende Classifier-API auf Port
-8000. `host.docker.internal` verbindet den k6-Container mit dem Host; das
-Beispiel ist für Docker Desktop unter Windows vorgesehen.
+Der Lasttest ist für Docker Desktop unter Windows vorgesehen. Stelle sicher,
+dass der Monitoring-Stack läuft. Falls nicht, starte ihn wie in Variante B
+beschrieben und lass das Stack-Terminal geöffnet.
 
-1. Starte den Monitoring-Stack im Projektverzeichnis, falls er noch nicht läuft:
+### 1. Modell laden
 
-   ```powershell
-   docker compose up --build -d
-   ```
+Öffne ein zweites PowerShell-Terminal im Projektverzeichnis. Sende eine Anfrage,
+damit das Modell vor dem Lasttest geladen wird:
 
-2. Sende vor dem Lasttest eine Anfrage, damit das Modell geladen wird. Beim
-   ersten Aufruf kann der Download und das Laden länger dauern:
+```powershell
+cd .\classifier-service
+Invoke-RestMethod -Uri http://localhost:8000/classify -Method Post `
+  -ContentType 'application/json' `
+  -Body '{"comment":"Das ist ein Super Bericht!"}'
+```
 
-   ```powershell
-   Invoke-RestMethod -Uri http://localhost:8000/classify -Method Post `
-     -ContentType 'application/json' `
-     -Body '{"comment":"Das ist ein Super Bericht!"}'
-   ```
+Beim ersten Aufruf können Download und Laden des Modells länger dauern.
 
-3. Starte den Lasttest in PowerShell **im Projektverzeichnis**:
+### 2. Lasttest ausführen
 
-   ```powershell
-   Get-Content .\loadtest\loadtest.js -Raw |
-   docker run --rm -i `
-     -p 127.0.0.1:5665:5665 `
-     -e K6_WEB_DASHBOARD=true `
-     -e K6_WEB_DASHBOARD_HOST=0.0.0.0 `
-     -e K6_WEB_DASHBOARD_PORT=5665 `
-     grafana/k6 run -
-   ```
+Führe den Befehl weiterhin im Projektverzeichnis aus:
 
-   Öffne während des Tests das k6-Dashboard unter `http://localhost:5665`.
-   Nach dem Test zeigt k6 die Zusammenfassung im Terminal an; der Container und
-   das Dashboard werden beendet. Der Port 5665 muss frei sein.
+```powershell
+Get-Content .\loadtest\loadtest.js -Raw |
+docker run --rm -i `
+  -p 127.0.0.1:5665:5665 `
+  -e K6_WEB_DASHBOARD=true `
+  -e K6_WEB_DASHBOARD_HOST=0.0.0.0 `
+  -e K6_WEB_DASHBOARD_PORT=5665 `
+  grafana/k6 run -
+```
 
-Das Skript sendet während 60 Sekunden mit 50 virtuellen Nutzern Anfragen an
-`POST /classify`. Eine Anfrage gilt als erfolgreich, wenn sie den Status 200
-und ein JSON-Objekt mit einem String `label` und einer Zahl `score` liefert.
-Der Test verlangt eine Erfolgsrate von mehr als 95 % und eine
+Öffne während des Tests das k6-Dashboard unter `http://localhost:5665`. Der
+Port 5665 muss frei sein. Nach dem Test zeigt k6 die Zusammenfassung im
+Terminal an und beendet den Container.
+
+Der Test sendet 60 Sekunden lang Anfragen mit 50 virtuellen Nutzern an
+`POST /classify`. Er verlangt eine Erfolgsrate von mehr als 95 % und eine
 95-Perzentil-Antwortzeit unter 3000 ms. Werden die Schwellen nicht erreicht,
-meldet k6 den Test als fehlgeschlagen. Die Metriken können zusätzlich im
-Grafana-Dashboard beobachtet werden.
-
-## Aufbau des Codes
-
-| Datei | Aufgabe |
-|---|---|
-| `src/main.py` | FastAPI-App, Endpoints, Start des Batchers |
-| `src/microbatch.py` | `MicroBatcher`: sammelt Kommentare und verarbeitet sie gemeinsam |
-| `src/classifier.py` | `Classifier`: Zero-Shot-Klassifikation, `classify_batch` |
-| `src/config.py` | Modell, Labels, Batch-Parameter |
-| `src/metrics.py` | Definition der Prometheus-Metriken |
-
-Ablauf eines Requests:
-
-1. `/classify` übergibt den Kommentar an `MicroBatcher.submit` und wartet.
-2. Der Batcher-Worker sammelt Kommentare, bis das Zeitfenster abläuft oder die maximale Batch-Grösse erreicht ist.
-3. Der gesamte Batch wird in einem einzigen Aufruf an `Classifier.classify_batch` übergeben.
-4. Jeder wartende Request erhält sein Ergebnis (bestes Label und Score).
-
-Details dazu stehen in [microbatching.md](./microbatching.md).
+meldet k6 den Test als fehlgeschlagen.
 
 ## Konfiguration
 
-Einstellungen werden über Umgebungsvariablen gesetzt (Standardwerte in `src/config.py`):
+Die Standardwerte stehen in `src/config.py`. Einstellungen können über
+Umgebungsvariablen überschrieben werden:
 
 | Variable | Standard | Bedeutung |
 |---|---|---|
@@ -218,20 +245,32 @@ Einstellungen werden über Umgebungsvariablen gesetzt (Standardwerte in `src/con
 | `BATCH_WINDOW_MS` | `200` | Batch-Zeitfenster in Millisekunden |
 | `MAX_BATCH_SIZE` | `8` | Maximale Anzahl Kommentare pro Batch |
 
-Beispiel:
+Beispiel in PowerShell, bevor du den lokalen Service startest:
 
 ```powershell
 $env:BATCH_WINDOW_MS = "100"
 $env:MAX_BATCH_SIZE = "16"
-uvicorn src.main:app
+.\.venv\Scripts\python.exe -m uvicorn src.main:app --reload
 ```
 
-## Labels ändern
+## Code-Aufbau
 
-Die Labels stehen in `LABELS` in `src/config.py`. Bei einer Änderung auch die Label-Tabelle im [README](../README.md) anpassen.
+| Datei | Aufgabe |
+|---|---|
+| `src/main.py` | FastAPI-App, Endpoints und Start des Batchers |
+| `src/microbatch.py` | Sammelt Kommentare und verarbeitet sie gemeinsam |
+| `src/classifier.py` | Zero-Shot-Klassifikation und `classify_batch` |
+| `src/config.py` | Modell, Labels und Batch-Parameter |
+| `src/metrics.py` | Prometheus-Metriken |
 
-## Aktueller Stand
+Ablauf einer Anfrage:
 
-Implementiert sind der Compose-Stack mit Classifier, Prometheus und Grafana
-sowie die Prometheus-Datenquelle, das provisionierte Grafana-Dashboard und ein
-k6-Lasttest. Noch offen sind die Skripte unter `scripts/`.
+1. `/classify` übergibt den Kommentar an `MicroBatcher.submit`.
+2. Der Batcher sammelt Kommentare bis zum Ende des Zeitfensters oder bis die
+   maximale Batch-Grösse erreicht ist.
+3. Der Batch wird mit `Classifier.classify_batch` klassifiziert.
+4. Jeder wartende Request erhält sein Label und seinen Score.
+
+Weitere Details stehen in [microbatching.md](./microbatching.md). Die Labels
+stehen in `LABELS` in `src/config.py`; bei einer Änderung muss auch die
+Label-Tabelle im [README](../README.md) angepasst werden.
