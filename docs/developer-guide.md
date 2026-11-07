@@ -29,6 +29,30 @@ uvicorn src.main:app --reload
 
 Der Service läuft auf `http://localhost:8000`. Das Modell wird erst beim ersten Request geladen, der erste Aufruf dauert daher länger.
 
+### Probleme mit der virtuellen Umgebung unter Windows
+
+Virtuelle Umgebungen enthalten absolute Pfade und sollten nach einem Verschieben
+des Projekts neu erstellt werden. Meldet der Uvicorn-Launcher einen nicht mehr
+vorhandenen Python-Pfad, verwende eine neu erstellte Umgebung.
+
+Bei sehr langen Projektpfaden kann die Installation zudem an der Windows-
+Pfadlängenbegrenzung scheitern. Erstelle die Umgebung dann an einem kurzen
+Pfad ausserhalb des Projektverzeichnisses. Das folgende Beispiel setzt voraus,
+dass der Zielordner noch nicht existiert und keine andere Umgebung aktiv ist:
+
+```powershell
+cd classifier-service
+python -m venv "$env:USERPROFILE\.virtualenvs\truemedia"
+$env:PATH = "$env:USERPROFILE\.virtualenvs\truemedia\Scripts;$env:PATH"
+python -m pip install -r requirements.txt
+uvicorn src.main:app --reload
+```
+
+Die PATH-Änderung gilt nur für das aktuelle Terminal und muss in einem neuen
+Terminal wiederholt werden. In VS Code sollte zusätzlich die `Scripts\python.exe`
+der neuen Umgebung als Interpreter ausgewählt werden. Eine bestehende `.venv`
+wird durch diese Schritte nicht verändert.
+
 ## Monitoring-Stack mit Docker Compose starten
 
 Im Projektverzeichnis:
