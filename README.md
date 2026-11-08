@@ -10,10 +10,10 @@
 
 ## Wichtige Links
 
-### kurze Anleitung zum Starten und Testen der Anwendung sowie eine kurze Erklärung der wichtigsten Metriken
+### Kurze Anleitung zum Starten und Testen der Anwendung sowie eine kurze Erklärung der wichtigsten Metriken
 * [Entwicklerleitfaden](./docs/developer-guide.md)
 * [Erklärung der wichtigsten Metriken](./docs/metrics.md)
-### Komponenten
+### Komponenten Beschreibungen
 * [Quellcode des Classifier-Services](./classifier-service/)
 * [Docker-Compose-Konfiguration](./docker-compose.yml)
 * [Prometheus-Konfiguration](./monitoring/prometheus/prometheus.yml)
@@ -143,7 +143,7 @@ Durchsatz, Batch-Verhalten und Latenzen mit Prometheus und Grafana sichtbar.
 .
 ├── classifier-service/    # Klassifikationsservice und Tests
 ├── monitoring/            # Prometheus- und Grafana-Konfiguration
-├── loadtest/              # Lasttest und Beispieldaten
+├── loadtest/              # Lasttest
 ├── docs/                  # Architektur- und Betriebsdokumentation
 └── scripts/               # Start- und Testskripte
 ```

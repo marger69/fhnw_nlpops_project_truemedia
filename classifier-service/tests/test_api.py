@@ -7,6 +7,7 @@ from src.classifier import Classifier
 
 
 def fake_pipeline(texts, candidate_labels, hypothesis_template, batch_size):
+    """Liefert für jeden übergebenen Text ein simuliertes Klassifikationsergebnis."""
     assert isinstance(texts, list)
     return [
         {
@@ -24,6 +25,7 @@ main.classifier = Classifier(pipeline=fake_pipeline)
 
 
 def test_classify_returns_label_and_score():
+    """Prüft die Klassifikationsantwort und die Bereitstellung der Service-Metriken."""
     with TestClient(main.app) as client:
         response = client.post("/classify", json={"comment": "Ich bin dagegen."})
         metrics = client.get("/metrics", follow_redirects=False)
@@ -49,10 +51,12 @@ def test_classify_returns_label_and_score():
 
 
 def test_classify_rejects_blank_comment():
+    """Prüft, dass ein nur aus Leerzeichen bestehender Kommentar abgelehnt wird."""
     with TestClient(main.app) as client:
         assert client.post("/classify", json={"comment": "  "}).status_code == 422
 
 
 def test_classify_rejects_missing_comment():
+    """Prüft, dass eine Anfrage ohne Kommentar abgelehnt wird."""
     with TestClient(main.app) as client:
         assert client.post("/classify", json={}).status_code == 422

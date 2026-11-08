@@ -5,6 +5,7 @@ from src.classifier import Classifier
 
 
 def test_config_uses_requested_labels():
+    """Prüft die konfigurierten Labels und ihre Reihenfolge."""
     assert config.LABELS == [
         "sachlicher oder konstruktiver Kommentar",
         "Zustimmung oder Unterstützung",
@@ -16,9 +17,11 @@ def test_config_uses_requested_labels():
 
 
 def test_classify_batch_uses_one_pipeline_call_for_all_comments():
+    """Prüft den gemeinsamen Pipeline-Aufruf und die gerundeten Klassifikationsergebnisse."""
     calls = []
 
     def fake(texts, candidate_labels, hypothesis_template, batch_size):
+        """Erfasst die übergebenen Texte und liefert für jeden ein simuliertes Ergebnis."""
         calls.append(texts)
         return [
             {

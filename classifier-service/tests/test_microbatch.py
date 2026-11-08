@@ -7,10 +7,12 @@ from src.microbatch import MicroBatcher
 
 
 def make_batcher(window_ms, max_size):
+    """Erstellt einen Batcher und eine Liste zur Aufzeichnung seiner Batches."""
     batches = []
     metrics = ServiceMetrics()
 
     def classify_batch(comments):
+        """Zeichnet den Batch auf und gibt jeden Kommentar mit Score 1.0 zurück."""
         batches.append(list(comments))
         return [(c, 1.0) for c in comments]
 
@@ -18,7 +20,9 @@ def make_batcher(window_ms, max_size):
 
 
 def test_window_expiry_classifies_collected_comments_together():
+    """Prüft, dass gesammelte Kommentare nach Ablauf des Zeitfensters gemeinsam verarbeitet werden."""
     async def scenario():
+        """Sendet drei Kommentare parallel und gibt Ergebnisse und Batches zurück."""
         batcher, batches = make_batcher(window_ms=100, max_size=8)
         batcher.start()
         results = await asyncio.gather(*(batcher.submit(f"c{i}") for i in range(3)))
@@ -31,7 +35,9 @@ def test_window_expiry_classifies_collected_comments_together():
 
 
 def test_max_batch_size_triggers_immediately():
+    """Prüft, dass ein voller Batch vor Ablauf des langen Zeitfensters verarbeitet wird."""
     async def scenario():
+        """Sendet acht Kommentare parallel und misst die Dauer der Verarbeitung."""
         batcher, batches = make_batcher(window_ms=5000, max_size=8)
         batcher.start()
         loop = asyncio.get_running_loop()
