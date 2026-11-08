@@ -40,8 +40,9 @@
 * [Prometheus-Konfiguration](./monitoring/prometheus/prometheus.yml)
 * [Grafana-Dashboard (JSON)](./monitoring/grafana/dashboards/nlp-dashboard.json)
 * [Beschreibung der Microbatching-Umsetzung](./docs/microbatching.md)
-* [Grafana-Loadtest: wachsende Queue und lange Wartezeit](./docs/screenshots/grafana-loadtest-1.png)
-* [Grafana-Loadtest: volle Batches bei leerer Queue](./docs/screenshots/grafana-loadtest-2.png)
+* Screenshots:
+  * [Grafana-Loadtest: wachsende Queue und längere Wartezeit](./docs/screenshots/grafana-loadtest-1.png)
+  * [Grafana-Loadtest: bei leerer Queue](./docs/screenshots/grafana-loadtest-2.png)
 ### Optional Web App
 * [Entwicklerleitfaden der Web-App](./optional%20web%20app/doc/developer-guide.md)
 * [Quellcode der Web-App](./optional%20web%20app/)
