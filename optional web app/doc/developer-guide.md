@@ -58,11 +58,17 @@ werden abgelehnt. Während einer Anfrage sind die Aktionsbuttons deaktiviert
 und das Textfeld ist schreibgeschützt.
 
 Mit **Text löschen** wird die Eingabe geleert. **Zufälliger Kommentar**
-füllt sie mit einem zufällig ausgewählten, vordefinierten Beispiel aus den
-sechs Label-Kategorien; die Klassifikation muss anschliessend separat gestartet
-werden. Das Modell kann ein anderes Label als die beabsichtigte Kategorie
-wählen. Änderungen an der Eingabe entfernen die vorherige Ergebnis- oder
-Fehleranzeige.
+kombiniert lokal zufällige Satzbausteine aus einer der sechs Label-Kategorien
+zu einem Kommentar. Die sechs Kategorien erscheinen in zufälliger Reihenfolge
+jeweils einmal pro Durchlauf; auch zwischen zwei Durchläufen wiederholt sich
+die Kategorie nicht unmittelbar. Für jede Kategorie gibt es 16 mögliche
+Kombinationen. Die zuletzt verwendete Kombination derselben Kategorie wird
+bei ihrer nächsten Auswahl ausgeschlossen; spätere Wiederholungen sind möglich.
+Die Auswahl wird beim Neuladen der Seite zurückgesetzt. Es wird kein
+Textgenerierungsmodell aufgerufen. Die
+Klassifikation muss separat gestartet werden; das Modell kann ein anderes
+Label als die beabsichtigte Kategorie wählen. Änderungen an der Eingabe
+entfernen die vorherige Ergebnis- oder Fehleranzeige.
 
 ## Voraussetzungen und Start
 
