@@ -1,0 +1,73 @@
+<!doctype html>
+<html lang="de">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>Kommentar-Klassifikation | The True Media</title>
+  <link rel="stylesheet" href="/style.css">
+  <script src="/app.js" defer></script>
+</head>
+<body>
+  <div class="newspaper">
+    <header class="masthead">
+      <div class="masthead-meta">
+        <span>NLP Operations</span>
+        <span>Eine interaktive Ausgabe</span>
+      </div>
+      <p class="publication-name">The True Media</p>
+      <p class="publication-motto">Meinungen einordnen. Perspektiven verstehen.</p>
+      <div class="section-bar">
+        <span>Meinung &amp; Debatte</span>
+        <span>Das digitale Lesepult</span>
+      </div>
+    </header>
+    <main>
+      <div class="article-heading">
+        <p class="eyebrow">Aus der Redaktion <span aria-hidden="true">/</span> Kommentar-Analyse</p>
+        <h1>Was steckt hinter einem Kommentar?</h1>
+        <p class="deck">Worte können zustimmen, kritisieren oder provozieren. Unser Classifier ordnet deinen Kommentar einer Kategorie zu.</p>
+        <p class="byline">Ein Experiment in <strong>Zero-Shot-Klassifikation</strong></p>
+      </div>
+      <div class="article-layout">
+        <article class="article-body">
+          <section class="input-section" aria-labelledby="input-title">
+            <p class="section-label">Dein Beitrag</p>
+            <h2 id="input-title">Kommentar eingeben</h2>
+            <p>Schreibe einen Kommentar und erfahre, wie das Modell ihn einordnet.</p>
+            <form id="classify-form">
+              <label for="comment">Kommentar</label>
+              <textarea id="comment" name="comment" rows="5" required placeholder="Schreibe hier deinen Kommentar …"></textarea>
+              <div class="form-actions">
+                <button id="submit" type="submit">Kommentar klassifizieren <span aria-hidden="true">→</span></button>
+                <button id="random-comment" class="secondary" type="button">Zufälliger Kommentar</button>
+                <button id="clear-comment" class="secondary" type="button">Text löschen</button>
+              </div>
+            </form>
+            <p id="status" role="status" aria-live="polite"></p>
+            <p id="error" role="alert" hidden></p>
+          </section>
+          <section class="result" id="result" aria-labelledby="result-title" hidden>
+            <p class="section-label">Die Einordnung</p>
+            <h2 id="result-title">Klassifikationsergebnis</h2>
+            <dl>
+              <dt>Kommentar</dt><dd id="result-comment"></dd>
+              <dt>Label</dt><dd id="result-label"></dd>
+              <dt>Score</dt><dd id="result-score"></dd>
+            </dl>
+            <p class="hint">Der Score ist die vom Modell ausgegebene Bewertung für das gewählte Label, keine Garantie für dessen Richtigkeit.</p>
+          </section>
+        </article>
+        <aside class="sidebar" aria-labelledby="sidebar-title">
+          <p class="section-label">Gut zu wissen</p>
+          <h2 id="sidebar-title">Ein Blick hinter die Zeilen</h2>
+          <p>Der Classifier untersucht den Text und wählt das passendste der vorgegebenen Labels.</p>
+          <p>Das Ergebnis ist eine automatische Einschätzung und ersetzt keine menschliche Beurteilung.</p>
+          <div class="sidebar-rule" aria-hidden="true">✦</div>
+          <p class="sidebar-note">NLP Operations <br>Projektarbeit</p>
+        </aside>
+      </div>
+    </main>
+    <footer><span>The True Media</span><span>Ein NLP-Operations-Projekt</span></footer>
+  </div>
+</body>
+</html>

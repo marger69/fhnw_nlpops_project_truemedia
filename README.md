@@ -8,6 +8,22 @@
 * Erstellt: zwischen 1.11. und 22.11.2026
 * Aufwand: ca. 24h
 
+## Inhaltsverzeichnis
+
+- [Wichtige Links](#wichtige-links)
+  - [Optional Web App](#optional-web-app)
+- [Aufgabenstellung](#aufgabenstellung)
+- [Funktionsumfang](#funktionsumfang)
+- [Schnellstart](#schnellstart)
+  - [Variante A: Monitoring-Stack mit Docker Compose starten](#variante-a-monitoring-stack-mit-docker-compose-starten)
+  - [Variante B: lokal mit Python starten](#variante-b-lokal-mit-python-starten)
+  - [Optional Web App](#optional-web-app-1)
+  - [API-Beispiel](#api-beispiel)
+- [Ziel](#ziel)
+- [Labels](#labels)
+- [Projektstruktur](#projektstruktur)
+- [Schlusswort](#schlusswort)
+
 ## Wichtige Links
 
 ### Kurze Anleitung zum Starten und Testen der Anwendung sowie eine kurze Erklärung der wichtigsten Metriken
@@ -20,6 +36,10 @@
 * [Grafana-Dashboard (JSON)](./monitoring/grafana/dashboards/nlp-dashboard.json)
 * [Grafana-Dashboard während des Loadtests](./docs/screenshots/grafana-loadtest-2.png)
 * [Beschreibung der Microbatching-Umsetzung](./docs/microbatching.md)
+### Optional Web App
+* [Entwicklerleitfaden der Web-App](./optional%20web%20app/doc/developer-guide.md)
+* [Quellcode der Web-App](./optional%20web%20app/)
+* [Web-App lokal öffnen](http://127.0.0.1:8080/) (wenn sie gestartet ist)
 
 ## Aufgabenstellung
 
@@ -103,6 +123,34 @@ Die Monitoring-Daten bleiben in den Volumes `prometheus_data` und
 Die Anleitung für den lokalen Start findest du im
 [Entwicklerleitfaden](docs/developer-guide.md#variante-b-lokal-mit-python-starten).
 
+### Optional Web App
+
+Starte zuerst den Classifier-Service mit Variante A oder B und lasse ihn
+laufen. Für die Web-App wird Python 3.11 oder neuer benötigt; zusätzliche
+Python-Pakete sind nicht erforderlich.
+
+Öffne ein separates Terminal im Projektverzeichnis und starte die Web-App:
+
+**Windows (PowerShell):**
+
+```powershell
+python ".\optional web app\server.py"
+```
+
+**Linux/macOS:**
+
+```sh
+python3 "optional web app/server.py"
+```
+
+Öffne anschliessend [http://127.0.0.1:8080](http://127.0.0.1:8080), gib
+einen Kommentar ein und starte die Klassifikation. Beim ersten Aufruf kann
+das Laden des Modells länger dauern. Die Web-App wird mit `Ctrl+C` im
+entsprechenden Terminal beendet; der Classifier läuft unabhängig davon weiter.
+
+Weitere Informationen zur Konfiguration und Fehlerbehandlung stehen im
+[Entwicklerleitfaden der Web-App](./optional%20web%20app/doc/developer-guide.md).
+
 ### API-Beispiel
 
 ```powershell
@@ -151,7 +199,18 @@ Durchsatz, Batch-Verhalten und Latenzen mit Prometheus und Grafana sichtbar.
 Implementiert sind `classifier-service/` (inkl. Microbatching, Metriken und Tests),
 der Compose-Stack mit Prometheus/Grafana sowie die Entwickleranleitung in `docs/`.
 Das Grafana-Dashboard ist provisioniert. Ein PowerShell-Skript zum Starten von
-Docker Desktop und dem Compose-Stack sowie ein k6-Lasttest sind vorhanden. Ein
-Grafana-Dashboard-Screenshot mit Messwerten aus dem aktuellen Lasttest liegt unter
-[docs/screenshots/grafana-loadtest-2.png](docs/screenshots/grafana-loadtest-2.png);
-siehe auch die [Lasttest-Anleitung](docs/developer-guide.md#lasttest-mit-k6).
+Docker Desktop und dem Compose-Stack sowie ein k6-Lasttest sind vorhanden.
+Siehe auch die [Lasttest-Anleitung](docs/developer-guide.md#lasttest-mit-k6).
+
+Grafana-Dashboard-Screenshots mit Messwerten:
+
+- [Loadtest mit hoher Last und wachsender Queue](docs/screenshots/grafana-loadtest-1.png)
+- [Loadtest mit acht virtuellen Nutzern](docs/screenshots/grafana-loadtest-2.png)
+
+## Schlusswort
+
+> - Als Architekt bin ich normalerweise eher Top-down unterwegs. Selbst programmiere ich vor allem YAML-Dateien in Git-Repositories sowie Architecture as Code mit Java.
+> - Entsprechend gross war mein Respekt vor dieser Projektaufgabe: Ich durfte mich wieder einmal näher an die Bits und Bytes heranwagen und einen NLP-Service von Grund auf umsetzen.
+> - Der Bottom-up-Ansatz hat mir geholfen, die Zusammenhänge zwischen Zero-Shot-Klassifikation, Microbatching und dem Betrieb mit Docker Compose, Prometheus und Grafana besser zu verstehen.
+> - Besonders lehrreich waren die Lasttests: Sie machten sichtbar, wie sich unterschiedliche Belastungen auf Batch-Grösse, Wartezeiten und Queue auswirken.
+> - Alles in allem war es eine spannende, lehrreiche und rundum positive Erfahrung. Herzlichen Dank dafür! 🙏
