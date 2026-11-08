@@ -18,7 +18,7 @@
 * [Docker-Compose-Konfiguration](./docker-compose.yml)
 * [Prometheus-Konfiguration](./monitoring/prometheus/prometheus.yml)
 * [Grafana-Dashboard (JSON)](./monitoring/grafana/dashboards/nlp-dashboard.json)
-* [Grafana-Dashboard während des Loadtests](./docs/screenshots/grafana-loadtest-1.png)
+* [Grafana-Dashboard während des Loadtests](./docs/screenshots/grafana-loadtest-2.png)
 * [Beschreibung der Microbatching-Umsetzung](./docs/microbatching.md)
 
 ## Aufgabenstellung
@@ -79,6 +79,11 @@ Details zu Konfiguration, Tests und Code-Aufbau: [Entwickleranleitung](docs/deve
 
 ## Ziel
 
+Ziel ist eine lauffähige und nachvollziehbar dokumentierte End-to-End-Lösung:
+Der Service klassifiziert News-Kommentare ohne eigenes Training per Zero-Shot
+Classification, bündelt parallele Anfragen per Microbatching und macht
+Durchsatz, Batch-Verhalten und Latenzen mit Prometheus und Grafana sichtbar.
+
 ## Labels
 
 | Nr. | Label | Bedeutung | Beispiel |
@@ -105,6 +110,6 @@ Implementiert sind `classifier-service/` (inkl. Microbatching, Metriken und Test
 der Compose-Stack mit Prometheus/Grafana sowie die Entwickleranleitung in `docs/`.
 Das Grafana-Dashboard ist provisioniert. Ein PowerShell-Skript zum Starten von
 Docker Desktop und dem Compose-Stack sowie ein k6-Lasttest sind vorhanden. Ein
-Grafana-Dashboard-Screenshot mit Messwerten aus einem Lasttest liegt unter
-[docs/screenshots/grafana-loadtest.png](docs/screenshots/grafana-loadtest.png);
+Grafana-Dashboard-Screenshot mit Messwerten aus dem aktuellen Lasttest liegt unter
+[docs/screenshots/grafana-loadtest-2.png](docs/screenshots/grafana-loadtest-2.png);
 siehe auch die [Lasttest-Anleitung](docs/developer-guide.md#lasttest-mit-k6).

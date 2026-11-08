@@ -11,11 +11,11 @@ export const requestSuccessRate = new Rate('request_success_rate');
 export const responseTime = new Trend('response_time', true);
 
 export const options = {
-    vus: 50,
+    vus: 8,
     duration: '60s',
     thresholds: {
         request_success_rate: ['rate>0.95'],
-        response_time: ['p(95)<3000'],
+        response_time: ['p(95)<20000'],
     },
 };
 

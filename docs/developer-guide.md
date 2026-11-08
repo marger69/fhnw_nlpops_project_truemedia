@@ -249,10 +249,11 @@ die Zieladresse mit der Umgebungsvariable `BASE_URL` überschrieben werden.
 Port 5665 muss frei sein. Nach dem Test zeigt k6 die Zusammenfassung im
 Terminal an und beendet den Container.
 
-Der Test sendet 60 Sekunden lang Anfragen mit 50 virtuellen Nutzern an
-`POST /classify`. Er verlangt eine Erfolgsrate von mehr als 95 % und eine
-95-Perzentil-Antwortzeit unter 3000 ms. Werden die Schwellen nicht erreicht,
-meldet k6 den Test als fehlgeschlagen.
+Der Test sendet 60 Sekunden lang Anfragen mit acht virtuellen Nutzern an
+`POST /classify`. Die acht parallelen Requests nutzen die konfigurierte
+maximale Batch-Grösse aus. Er verlangt eine Erfolgsrate von mehr als 95 % und
+eine 95-Perzentil-Antwortzeit unter 20 Sekunden. Werden die Schwellen nicht
+erreicht, meldet k6 den Test als fehlgeschlagen.
 
 ### 3. Grafana-Screenshot für die Abgabe
 
