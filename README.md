@@ -5,11 +5,21 @@
 * Projektarbeit: NLP Operations
 * Referent: Claudio Paonessa
 * Autor: Markus Gerber
-* Erstellt: 
-* Aufwand: 
+* Erstellt: zwischen 1.11. und 22.11.2026
+* Aufwand: ca. 24h
 
 ## Wichtige Links
 
+### kurze Anleitung zum Starten und Testen der Anwendung sowie eine kurze Erklärung der wichtigsten Metriken
+* [Entwicklerleitfaden](./docs/developer-guide.md)
+* [Erklärung der wichtigsten Metriken](./docs/metrics.md)
+### Komponenten
+* [Quellcode des Classifier-Services](./classifier-service/)
+* [Docker-Compose-Konfiguration](./docker-compose.yml)
+* [Prometheus-Konfiguration](./monitoring/prometheus/prometheus.yml)
+* [Grafana-Dashboard (JSON)](./monitoring/grafana/dashboards/nlp-dashboard.json)
+* [Grafana-Dashboard während des Loadtests](./docs/screenshots/grafana-loadtest-1.png)
+* [Beschreibung der Microbatching-Umsetzung](./docs/microbatching.md)
 
 ## Aufgabenstellung
 
@@ -60,7 +70,7 @@ curl -X POST http://localhost:8000/classify -H "Content-Type: application/json" 
 ```json
 {
   "comment": "Ich habe den Artikel nicht gelesen, aber ich bin trotzdem dagegen.",
-  "label": "Empörung oder Rant",
+  "label": "Empörung oder aggressiver Kommentar",
   "score": 0.72
 }
 ```
@@ -73,12 +83,12 @@ Details zu Konfiguration, Tests und Code-Aufbau: [Entwickleranleitung](docs/deve
 
 | Nr. | Label | Bedeutung | Beispiel |
 |---|---|---|---|
-| 1 | Sachliche Kritik | Begründete, respektvolle Kritik | „Der Artikel nennt keine Quellen für diese Zahlen.“ |
-| 2 | Zustimmung | Zustimmung zum Artikel oder zu einer Meinung | „Genau so sehe ich das auch.“ |
-| 3 | Sarkasmus oder Ironie | Gemeint ist das Gegenteil des Gesagten | „Na toll, noch eine geniale Idee der Politik.“ |
-| 4 | Off-Topic-Kommentar | Kein Bezug zum Artikelthema, inkl. Spam und Werbung | „Jetzt klicken und Geld gewinnen!“ |
-| 5 | Empörung oder Rant | Emotionale Wut- oder Frustäusserung | „Ich habe den Artikel nicht gelesen, aber ich bin trotzdem dagegen.“ |
-| 6 | Desinformation oder Verschwörung | Falschbehauptungen oder Verschwörungsnarrative | „Das wird alles von oben gesteuert, die Medien lügen.“ |
+| 1 | sachlicher oder konstruktiver Kommentar | Respektvoll formulierte Kritik, sachliche Argumente oder konkrete Verbesserungsvorschläge | „Der Artikel nennt keine Quellen; aktuelle Zahlen würden die Aussage besser einordnen.“ |
+| 2 | Zustimmung oder Unterstützung | Drückt Zustimmung aus oder unterstützt eine Aussage oder Person | „Danke für die gut recherchierte Einordnung, dem stimme ich zu.“ |
+| 3 | Beleidigung oder persönlicher Angriff | Wertet eine Person ab oder greift sie direkt an | „Du hast offensichtlich keine Ahnung, wovon du redest.“ |
+| 4 | Empörung oder aggressiver Kommentar | Drückt starke Wut oder Frustration in einem scharfen, aggressiven Ton aus | „Das ist eine bodenlose Frechheit, so kann es nicht weitergehen!“ |
+| 5 | Sarkasmus oder Ironie | Sagt etwas spöttisch oder ironisch, oft mit gegenteiliger Bedeutung | „Na toll, noch eine geniale Idee der Politik.“ |
+| 6 | Off-Topic oder irrelevanter Kommentar | Hat keinen erkennbaren Bezug zum Artikelthema | „Übrigens: Mein Lieblingsverein hat gestern gewonnen!“ |
 
 ## Projektstruktur
 

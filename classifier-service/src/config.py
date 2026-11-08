@@ -5,12 +5,12 @@ import os
 MODEL_NAME = os.getenv("MODEL_NAME", "facebook/bart-large-mnli")
 
 LABELS = [
-    "Sachliche Kritik",
-    "Zustimmung",
+    "sachlicher oder konstruktiver Kommentar",
+    "Zustimmung oder Unterstützung",
+    "Beleidigung oder persönlicher Angriff",
+    "Empörung oder aggressiver Kommentar",
     "Sarkasmus oder Ironie",
-    "Off-Topic-Kommentar",
-    "Empörung oder Rant",
-    "Desinformation oder Verschwörung",
+    "Off-Topic oder irrelevanter Kommentar",
 ]
 
 HYPOTHESIS_TEMPLATE = os.getenv("HYPOTHESIS_TEMPLATE", "Dieser Kommentar ist {}.")

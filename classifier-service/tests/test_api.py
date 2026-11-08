@@ -8,7 +8,16 @@ from src.classifier import Classifier
 
 def fake_pipeline(texts, candidate_labels, hypothesis_template, batch_size):
     assert isinstance(texts, list)
-    return [{"labels": ["Empörung oder Rant", "Zustimmung"], "scores": [0.724, 0.1]} for _ in texts]
+    return [
+        {
+            "labels": [
+                "Empörung oder aggressiver Kommentar",
+                "Zustimmung oder Unterstützung",
+            ],
+            "scores": [0.724, 0.1],
+        }
+        for _ in texts
+    ]
 
 
 main.classifier = Classifier(pipeline=fake_pipeline)
@@ -21,7 +30,7 @@ def test_classify_returns_label_and_score():
     assert response.status_code == 200
     assert response.json() == {
         "comment": "Ich bin dagegen.",
-        "label": "Empörung oder Rant",
+        "label": "Empörung oder aggressiver Kommentar",
         "score": 0.72,
     }
     assert metrics.status_code == 200
@@ -34,7 +43,7 @@ def test_classify_returns_label_and_score():
         "batch_inference_duration_seconds_count",
         "batch_wait_time_seconds_count",
         "microbatch_queue_size",
-        'comments_classified_by_label_total{label="Empörung oder Rant"}',
+        'comments_classified_by_label_total{label="Empörung oder aggressiver Kommentar"}',
     ):
         assert metric in metrics.text
 
