@@ -219,4 +219,4 @@ Grafana-Dashboard-Screenshots mit Messwerten:
 > - Entsprechend gross war mein Respekt vor dieser Projektaufgabe: Ich durfte mich wieder einmal näher an die Bits und Bytes heranwagen und einen NLP-Service von Grund auf umsetzen.
 > - Der Bottom-up-Ansatz hat mir geholfen, die Zusammenhänge zwischen Zero-Shot-Klassifikation, Microbatching und dem Betrieb mit Docker Compose, Prometheus und Grafana besser zu verstehen.
 > - Besonders lehrreich waren die Lasttests: Sie machten sichtbar, wie sich unterschiedliche Belastungen auf Batch-Grösse, Wartezeiten und Queue auswirken.
-> - Alles in allem war es eine spannende, lehrreiche und rundum positive Erfahrung. Herzlichen Dank dafür! 🙏
+> - Alles in allem war es eine sehr spannende, lehrreiche und rundum positive Erfahrung. Herzlichen Dank dafür! 🙏
