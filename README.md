@@ -34,11 +34,12 @@
 * [Docker-Compose-Konfiguration](./docker-compose.yml)
 * [Prometheus-Konfiguration](./monitoring/prometheus/prometheus.yml)
 * [Grafana-Dashboard (JSON)](./monitoring/grafana/dashboards/nlp-dashboard.json)
-* [Grafana-Dashboard während des Loadtests](./docs/screenshots/grafana-loadtest-2.png)
-* [Beschreibung der Microbatching-Umsetzung](./docs/microbatching.md)
+* [Screenshot: Grafana-Dashboard während des Loadtests](./docs/screenshots/grafana-loadtest-2.png)
+* [Screenshot: Beschreibung der Microbatching-Umsetzung](./docs/microbatching.md)
 ### Optional Web App
 * [Entwicklerleitfaden der Web-App](./optional%20web%20app/doc/developer-guide.md)
 * [Quellcode der Web-App](./optional%20web%20app/)
+* [Screenshot der Web-App](./optional%20web%20app/doc/screenhots/web-app.png)
 * [Web-App lokal öffnen](http://127.0.0.1:8080/) (wenn sie gestartet ist)
 
 ## Aufgabenstellung
