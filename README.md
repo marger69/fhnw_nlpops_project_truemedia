@@ -33,35 +33,77 @@ Die Klassifikation erfolgt mittels Zero-Shot Classification (`facebook/bart-larg
 
 ## Schnellstart
 
-### Lokal mit Python
+### Variante A: Monitoring-Stack mit Docker Compose starten
+
+Diese Variante startet den Classifier, Prometheus und Grafana zusammen.
+Vorausgesetzt wird Docker Desktop mit Linux-Engine. Beim ersten
+Klassifikationsaufruf wird das Modell aus dem Internet geladen (ca. 1.6 GB).
+
+#### 1. Stack starten
+
+**Direkt mit Docker Compose:** Wenn Docker Desktop und die Docker Engine
+bereits laufen, führe im Projektverzeichnis in PowerShell Folgendes aus:
 
 ```powershell
-cd classifier-service
-python -m venv .venv
-.\.venv\Scripts\python.exe -m pip install -r requirements.txt
-.\.venv\Scripts\python.exe -m uvicorn src.main:app
+docker compose up --build
 ```
 
-Die virtuelle Umgebung muss nicht aktiviert werden; dadurch ist keine Änderung
-der PowerShell-Skriptausführungsrichtlinie nötig.
+Das Terminal bleibt geöffnet, solange der Stack läuft.
 
-### Mit Docker Compose
-
-Im Projektverzeichnis starten:
+**Skriptbasiert:** Das Startskript startet Docker Desktop bei Bedarf und wartet
+auf die Docker Engine. Führe es ebenfalls im Projektverzeichnis aus:
 
 ```powershell
 powershell -NoProfile -ExecutionPolicy Bypass -File .\scripts\start-monitoring.ps1
 ```
 
-Das Skript startet Docker Desktop bei Bedarf, wartet auf die Engine und führt
-anschliessend `docker compose up --build` aus.
+Die Ausführungsrichtlinie `Bypass` gilt nur für den gestarteten
+PowerShell-Prozess. Auch bei diesem Start bleibt das Terminal geöffnet,
+solange der Stack läuft.
 
-Die API ist unter `http://localhost:8000`, Prometheus unter
-`http://localhost:9090` und Grafana unter `http://localhost:3000` erreichbar.
-Grafana verwendet Prometheus automatisch als Datenquelle. Details stehen in der
-[Entwickleranleitung](docs/developer-guide.md).
+Falls Docker Desktop länger zum Starten braucht, kannst du beim Skript das
+Zeitlimit erhöhen, zum Beispiel auf 300 Sekunden:
 
-Beispiel:
+```powershell
+powershell -NoProfile -ExecutionPolicy Bypass -File .\scripts\start-monitoring.ps1 -StartupTimeoutSeconds 300
+```
+
+#### 2. Dienste öffnen
+
+| Dienst | Adresse |
+|---|---|
+| Classifier-API | `http://localhost:8000`, `http://127.0.0.1:8000/docs` |
+| Prometheus | `http://localhost:9090` |
+| Grafana | `http://localhost:3000` |
+
+Beim ersten Klassifikationsaufruf lädt der Classifier das Modell. Die Daten
+werden im Docker-Volume `model_cache` gespeichert. Prometheus liest die
+Metriken intern unter `classifier-service:8000/metrics`; die Adresse ist für
+die Kommunikation zwischen den Compose-Diensten bestimmt.
+
+Grafana verwendet Prometheus automatisch als Datenquelle. Beim ersten Login
+lauten die lokalen Standard-Zugangsdaten `admin` / `admin`; Grafana fordert
+dazu auf, das Passwort zu ändern. Das Dashboard «NLP Microbatching» wird
+automatisch bereitgestellt.
+
+#### 3. Stack stoppen
+
+Drücke im Terminal, in dem der Stack läuft, `Ctrl+C`. Alternativ öffne ein
+zweites PowerShell-Terminal im Projektverzeichnis und führe aus:
+
+```powershell
+docker compose down
+```
+
+Die Monitoring-Daten bleiben in den Volumes `prometheus_data` und
+`grafana_data` erhalten.
+
+### Variante B: lokal mit Python starten
+
+Die Anleitung für den lokalen Start findest du im
+[Entwicklerleitfaden](docs/developer-guide.md#variante-b-lokal-mit-python-starten).
+
+### API-Beispiel
 
 ```powershell
 curl -X POST http://localhost:8000/classify -H "Content-Type: application/json" -d '{\"comment\": \"Ich habe den Artikel nicht gelesen, aber ich bin trotzdem dagegen.\"}'
