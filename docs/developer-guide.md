@@ -152,7 +152,7 @@ PowerShell:
 ```powershell
 Invoke-RestMethod -Uri http://localhost:8000/classify -Method Post `
   -ContentType 'application/json' `
-  -Body '{"comment":"Das ist ein Super Bericht!"}'
+  -Body '{"comment":"Das ist ein super Bericht!"}'
 ```
 
 ### 4. Tests ausführen

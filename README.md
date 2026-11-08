@@ -39,8 +39,9 @@
 * [Docker-Compose-Konfiguration](./docker-compose.yml)
 * [Prometheus-Konfiguration](./monitoring/prometheus/prometheus.yml)
 * [Grafana-Dashboard (JSON)](./monitoring/grafana/dashboards/nlp-dashboard.json)
-* [Screenshot: Grafana-Dashboard während des Loadtests](./docs/screenshots/grafana-loadtest-2.png)
-* [Screenshot: Beschreibung der Microbatching-Umsetzung](./docs/microbatching.md)
+* [Beschreibung der Microbatching-Umsetzung](./docs/microbatching.md)
+* [Grafana-Loadtest: wachsende Queue und lange Wartezeit](./docs/screenshots/grafana-loadtest-1.png)
+* [Grafana-Loadtest: volle Batches bei leerer Queue](./docs/screenshots/grafana-loadtest-2.png)
 ### Optional Web App
 * [Entwicklerleitfaden der Web-App](./optional%20web%20app/doc/developer-guide.md)
 * [Quellcode der Web-App](./optional%20web%20app/)
@@ -59,7 +60,7 @@ Die Klassifikation erfolgt mittels Zero-Shot Classification (`facebook/bart-larg
 
 ## Schnellstart
 
-### Variante A: Monitoring-Stack mit Docker Compose starten
+### Variante A: Classifier und Monitoring-Stack mit Docker Compose starten
 
 Diese Variante startet den Classifier, Prometheus und Grafana zusammen.
 Vorausgesetzt wird Docker Desktop mit Linux-Engine. Beim ersten
