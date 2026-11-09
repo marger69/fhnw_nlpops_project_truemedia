@@ -1,37 +1,38 @@
 # fhnw_nlpops_project_truemedia
 
-* Fachhochschule: FHNW
-* CAS: AI Operations
-* Projektarbeit: NLP Operations
-* Referent: Claudio Paonessa
-* Autor: Markus Gerber
-* Erstellt: zwischen 1.11. und 22.11.2026
-* Aufwand: ca. 24h
+NLP-Operations-Projektarbeit im Rahmen des CAS AI Operations an der FHNW.
+
+- **Fachhochschule:** FHNW
+- **CAS:** AI Operations
+- **Projektarbeit:** NLP Operations
+- **Referent:** Claudio Paonessa
+- **Autor:** Markus Gerber
+- **Erstellt:** 01.11.–22.11.2026
+- **Aufwand:** ca. 24 Stunden
 
 ## Inhaltsverzeichnis
 
 - [Wichtige Links](#wichtige-links)
-  - [Kurze Anleitung zum Starten und Testen der Anwendung sowie eine kurze Erklärung der wichtigsten Metriken](#kurze-anleitung-zum-starten-und-testen-der-anwendung-sowie-eine-kurze-erklärung-der-wichtigsten-metriken)
+  - [Kurze Anleitung zum Starten und Testen](#kurze-anleitung-zum-starten-und-testen)
   - [Komponenten Beschreibungen](#komponenten-beschreibungen)
   - [Optional Web App](#optional-web-app)
-- [Aufgabenstellung](#aufgabenstellung)
+- [Ziel & Aufgabenstellung](#ziel--aufgabenstellung)
 - [Funktionsumfang](#funktionsumfang)
+- [Labels](#labels)
+- [Projektstruktur](#projektstruktur)
 - [Schnellstart](#schnellstart)
-  - [Variante A: Monitoring-Stack mit Docker Compose starten](#variante-a-monitoring-stack-mit-docker-compose-starten)
+  - [Classifier und Monitoring-Stack mit Docker Compose starten](#classifier-und-monitoring-stack-mit-docker-compose-starten)
     - [1. Stack starten](#1-stack-starten)
     - [2. Dienste öffnen](#2-dienste-öffnen)
     - [3. Stack stoppen](#3-stack-stoppen)
-  - [Variante B: lokal mit Python starten](#variante-b-lokal-mit-python-starten)
-  - [Optional: Web App](#optional-web-app-1)
+  - [Optional Web App](#optional-web-app-1)
   - [API-Beispiel](#api-beispiel)
-- [Ziel](#ziel)
-- [Labels](#labels)
-- [Projektstruktur](#projektstruktur)
+  - [k6-Lasttest aufrufen](#k6-lasttest-aufrufen)
 - [Schlusswort](#schlusswort)
 
 ## Wichtige Links
 
-### Kurze Anleitung zum Starten und Testen der Anwendung sowie eine kurze Erklärung der wichtigsten Metriken
+### Kurze Anleitung zum Starten und Testen
 * [Entwicklerleitfaden](./docs/developer-guide.md)
 * [Erklärung der wichtigsten Metriken](./docs/metrics.md)
 ### Komponenten Beschreibungen
@@ -49,19 +50,62 @@
 * [Screenshot der Web-App](./optional%20web%20app/doc/screenhots/web-app.png)
 * [Web-App lokal öffnen](http://127.0.0.1:8080/) (wenn sie gestartet ist)
 
-## Aufgabenstellung
+## Ziel & Aufgabenstellung
 
-Dieses Projekt implementiert einen NLP-Inference-Service zur automatischen Klassifikation von Kommentaren einer fiktiven Online-Zeitung.
-Die Klassifikation erfolgt mittels Zero-Shot Classification (`facebook/bart-large-mnli`, Hugging Face Transformers).
+Ziel des Projekts ist die Entwicklung eines lauffähigen und nachvollziehbar dokumentierten NLP-Inference-Service zur automatischen Klassifikation von News-Kommentaren.
+
+Der Service nutzt **Zero-Shot Classification** ohne eigenes Modelltraining. Die Klassifikation erfolgt mit dem Modell `facebook/bart-large-mnli` und **Hugging Face Transformers**.
+
+Durch **Microbatching** werden parallele Anfragen gebündelt und gemeinsam verarbeitet. **Prometheus** und **Grafana** ermöglichen die Überwachung und Visualisierung von Durchsatz, Batch-Verhalten und Latenzen.
 
 ## Funktionsumfang
 
-* HTTP-Service mit `POST /classify` (FastAPI): liefert `comment`, `label` und `score`.
-* Microbatching: Eingehende Kommentare werden kurz gesammelt und gemeinsam klassifiziert. Ein Batch wird verarbeitet, sobald das Batch-Zeitfenster (Standard 200 ms) abgelaufen oder die maximale Batch-Grösse (Standard 8) erreicht ist.
+Der Service umfasst folgende Kernfunktionen:
+
+- **REST-API mit FastAPI:** `POST /classify` klassifiziert einen Kommentar und liefert `comment`, `label` und `score`.
+- **Zero-Shot Classification:** Klassifikation der Kommentare ohne eigenes Modelltraining mit `facebook/bart-large-mnli`.
+- **Microbatching:** Eingehende Anfragen werden kurz gesammelt und gemeinsam verarbeitet.
+- **Batch-Steuerung:** Der Worker sammelt ab der Entnahme der ersten Anfrage standardmässig bis zu **200 ms** oder bis zu **8 Anfragen**. Während ein vorheriger Batch verarbeitet wird, können Anfragen länger in der Queue warten.
+- **Monitoring mit Prometheus:** Erfassung der relevanten Metriken des Inference-Service.
+- **Visualisierung mit Grafana:** Darstellung von Durchsatz, Batch-Verhalten und Latenzen.
+- **Optionale Web-App:** Browserbasierte Oberfläche zur Eingabe eines Kommentars und Anzeige des Klassifikationsergebnisses über die REST-API des Classifiers.
+
+## Labels
+
+| Nr. | Label | Bedeutung | Beispiel |
+|---|---|---|---|
+| 1 | sachlicher oder konstruktiver Kommentar | Respektvoll formulierte Kritik, sachliche Argumente oder konkrete Verbesserungsvorschläge | „Der Artikel nennt keine Quellen; aktuelle Zahlen würden die Aussage besser einordnen.“ |
+| 2 | Zustimmung oder Unterstützung | Drückt Zustimmung aus oder unterstützt eine Aussage oder Person | „Danke für die gut recherchierte Einordnung, dem stimme ich zu.“ |
+| 3 | Beleidigung oder persönlicher Angriff | Wertet eine Person ab oder greift sie direkt an | „Du hast offensichtlich keine Ahnung, wovon du redest.“ |
+| 4 | Empörung oder aggressiver Kommentar | Drückt starke Wut oder Frustration in einem scharfen, aggressiven Ton aus | „Das ist eine bodenlose Frechheit, so kann es nicht weitergehen!“ |
+| 5 | Sarkasmus oder Ironie | Sagt etwas spöttisch oder ironisch, oft mit gegenteiliger Bedeutung | „Na toll, noch eine geniale Idee der Politik.“ |
+| 6 | Off-Topic oder irrelevanter Kommentar | Hat keinen erkennbaren Bezug zum Artikelthema | „Übrigens: Mein Lieblingsverein hat gestern gewonnen!“ |
+
+## Projektstruktur
+
+```text
+.
+├── classifier-service/    # Klassifikationsservice und Tests
+├── monitoring/            # Prometheus- und Grafana-Konfiguration
+├── loadtest/              # Lasttest
+├── docs/                  # Architektur- und Betriebsdokumentation
+├── optional web app/      # Optionale Browseroberfläche
+└── scripts/               # Start- und Testskripte
+```
+
+Implementiert sind `classifier-service/` (inkl. Microbatching, Metriken und Tests),
+der Compose-Stack mit Prometheus/Grafana sowie die Entwickleranleitung in `docs/`.
+Das Grafana-Dashboard ist provisioniert. Ein PowerShell-Skript zum Starten von
+Docker Desktop und dem Compose-Stack sowie ein k6-Lasttest sind vorhanden.
+Siehe auch die [Lasttest-Anleitung](docs/developer-guide.md#lasttest-mit-k6).
+
+Grafana-Dashboard-Screenshots mit Messwerten:
+- [Loadtest mit hoher Last und wachsender Queue](docs/screenshots/grafana-loadtest-1.png)
+- [Loadtest mit acht virtuellen Nutzern](docs/screenshots/grafana-loadtest-2.png)
 
 ## Schnellstart
 
-### Variante A: Classifier und Monitoring-Stack mit Docker Compose starten
+### Classifier und Monitoring-Stack mit Docker Compose starten
 
 Diese Variante startet den Classifier, Prometheus und Grafana zusammen.
 Vorausgesetzt wird Docker Desktop mit Linux-Engine. Beim ersten
@@ -78,31 +122,15 @@ docker compose up --build
 
 Das Terminal bleibt geöffnet, solange der Stack läuft.
 
-**Skriptbasiert:** Das Startskript startet Docker Desktop bei Bedarf und wartet
-auf die Docker Engine. Führe es ebenfalls im Projektverzeichnis aus:
-
-```powershell
-powershell -NoProfile -ExecutionPolicy Bypass -File .\scripts\start-monitoring.ps1
-```
-
-Die Ausführungsrichtlinie `Bypass` gilt nur für den gestarteten
-PowerShell-Prozess. Auch bei diesem Start bleibt das Terminal geöffnet,
-solange der Stack läuft.
-
-Falls Docker Desktop länger zum Starten braucht, kannst du beim Skript das
-Zeitlimit erhöhen, zum Beispiel auf 300 Sekunden:
-
-```powershell
-powershell -NoProfile -ExecutionPolicy Bypass -File .\scripts\start-monitoring.ps1 -StartupTimeoutSeconds 300
-```
-
 #### 2. Dienste öffnen
 
 | Dienst | Adresse |
 |---|---|
-| Classifier-API | `http://localhost:8000`, `http://127.0.0.1:8000/docs` |
-| Prometheus | `http://localhost:9090` |
-| Grafana | `http://localhost:3000` |
+| Classifier-API / Health | [http://localhost:8000/health](http://localhost:8000/health) |
+| FastAPI / Swagger UI | [http://127.0.0.1:8000/docs](http://127.0.0.1:8000/docs) |
+| Prometheus | [http://localhost:9090](http://localhost:9090) |
+| Grafana / NLP Microbatching | [http://localhost:3000/d/nlp-microbatching/nlp-microbatching](http://localhost:3000/d/nlp-microbatching/nlp-microbatching) |
+| Optionale Web-App (wenn gestartet) | [http://127.0.0.1:8080](http://127.0.0.1:8080) |
 
 Beim ersten Klassifikationsaufruf lädt der Classifier das Modell. Die Daten
 werden im Docker-Volume `model_cache` gespeichert. Prometheus liest die
@@ -112,7 +140,9 @@ die Kommunikation zwischen den Compose-Diensten bestimmt.
 Grafana verwendet Prometheus automatisch als Datenquelle. Beim ersten Login
 lauten die lokalen Standard-Zugangsdaten `admin` / `admin`; Grafana fordert
 dazu auf, das Passwort zu ändern. Das Dashboard «NLP Microbatching» wird
-automatisch bereitgestellt.
+automatisch bereitgestellt und als Grafana-Startdashboard konfiguriert.
+Persönliche oder organisationsweite Dashboard-Einstellungen können dieses
+Startdashboard überschreiben.
 
 #### 3. Stack stoppen
 
@@ -126,16 +156,11 @@ docker compose down
 Die Monitoring-Daten bleiben in den Volumes `prometheus_data` und
 `grafana_data` erhalten.
 
-### Variante B: lokal mit Python starten
-
-Die Anleitung für den lokalen Start findest du im
-[Entwicklerleitfaden](docs/developer-guide.md#variante-b-lokal-mit-python-starten).
-
 ### Optional Web App
 
-Starte zuerst den Classifier-Service mit Variante A oder B und lasse ihn
-laufen. Für die Web-App wird Python 3.11 oder neuer benötigt; zusätzliche
-Python-Pakete sind nicht erforderlich.
+Starte zuerst den Classifier-Service mit Docker Compose oder lokal mit Python
+und lasse ihn laufen. Für die Web-App wird Python 3.11 oder neuer benötigt;
+zusätzliche Python-Pakete sind nicht erforderlich.
 
 Öffne ein separates Terminal im Projektverzeichnis und starte die Web-App:
 
@@ -162,8 +187,13 @@ Weitere Informationen zur Konfiguration und Fehlerbehandlung stehen im
 ### API-Beispiel
 
 ```powershell
-curl -X POST http://localhost:8000/classify -H "Content-Type: application/json" -d '{\"comment\": \"Ich habe den Artikel nicht gelesen, aber ich bin trotzdem dagegen.\"}'
+Invoke-RestMethod -Uri http://localhost:8000/classify -Method Post `
+  -ContentType 'application/json' `
+  -Body '{"comment":"Ich habe den Artikel nicht gelesen, aber ich bin trotzdem dagegen."}'
 ```
+
+Beispielantwort als JSON; das tatsächliche Label und der Score hängen vom
+Modell ab. PowerShell stellt die Antwort von `Invoke-RestMethod` als Objekt dar.
 
 ```json
 {
@@ -173,47 +203,26 @@ curl -X POST http://localhost:8000/classify -H "Content-Type: application/json" 
 }
 ```
 
-Details zu Konfiguration, Tests und Code-Aufbau: [Entwickleranleitung](docs/developer-guide.md).
+### k6-Lasttest aufrufen
 
-## Ziel
+Starte zuerst den Monitoring-Stack und lade das Modell mit einer Anfrage an
+`/classify`. Führe anschliessend im Projektverzeichnis in PowerShell den
+Lasttest aus. k6 läuft dabei in einem Docker-Container; ein lokaler k6-Client
+ist nicht erforderlich.
 
-Ziel ist eine lauffähige und nachvollziehbar dokumentierte End-to-End-Lösung:
-Der Service klassifiziert News-Kommentare ohne eigenes Training per Zero-Shot
-Classification, bündelt parallele Anfragen per Microbatching und macht
-Durchsatz, Batch-Verhalten und Latenzen mit Prometheus und Grafana sichtbar.
-
-## Labels
-
-| Nr. | Label | Bedeutung | Beispiel |
-|---|---|---|---|
-| 1 | sachlicher oder konstruktiver Kommentar | Respektvoll formulierte Kritik, sachliche Argumente oder konkrete Verbesserungsvorschläge | „Der Artikel nennt keine Quellen; aktuelle Zahlen würden die Aussage besser einordnen.“ |
-| 2 | Zustimmung oder Unterstützung | Drückt Zustimmung aus oder unterstützt eine Aussage oder Person | „Danke für die gut recherchierte Einordnung, dem stimme ich zu.“ |
-| 3 | Beleidigung oder persönlicher Angriff | Wertet eine Person ab oder greift sie direkt an | „Du hast offensichtlich keine Ahnung, wovon du redest.“ |
-| 4 | Empörung oder aggressiver Kommentar | Drückt starke Wut oder Frustration in einem scharfen, aggressiven Ton aus | „Das ist eine bodenlose Frechheit, so kann es nicht weitergehen!“ |
-| 5 | Sarkasmus oder Ironie | Sagt etwas spöttisch oder ironisch, oft mit gegenteiliger Bedeutung | „Na toll, noch eine geniale Idee der Politik.“ |
-| 6 | Off-Topic oder irrelevanter Kommentar | Hat keinen erkennbaren Bezug zum Artikelthema | „Übrigens: Mein Lieblingsverein hat gestern gewonnen!“ |
-
-## Projektstruktur
-
-```text
-.
-├── classifier-service/    # Klassifikationsservice und Tests
-├── monitoring/            # Prometheus- und Grafana-Konfiguration
-├── loadtest/              # Lasttest
-├── docs/                  # Architektur- und Betriebsdokumentation
-└── scripts/               # Start- und Testskripte
+```powershell
+Get-Content .\loadtest\loadtest.js -Raw |
+docker run --rm -i `
+  -p 127.0.0.1:5665:5665 `
+  -e K6_WEB_DASHBOARD=true `
+  -e K6_WEB_DASHBOARD_HOST=0.0.0.0 `
+  -e K6_WEB_DASHBOARD_PORT=5665 `
+  grafana/k6 run -
 ```
 
-Implementiert sind `classifier-service/` (inkl. Microbatching, Metriken und Tests),
-der Compose-Stack mit Prometheus/Grafana sowie die Entwickleranleitung in `docs/`.
-Das Grafana-Dashboard ist provisioniert. Ein PowerShell-Skript zum Starten von
-Docker Desktop und dem Compose-Stack sowie ein k6-Lasttest sind vorhanden.
-Siehe auch die [Lasttest-Anleitung](docs/developer-guide.md#lasttest-mit-k6).
+Das k6-Dashboard ist während des Tests unter [http://localhost:5665](http://localhost:5665) erreichbar. Details zum Ablauf und zu den Testschwellen stehen in der [Lasttest-Anleitung](docs/developer-guide.md#lasttest-mit-k6).
 
-Grafana-Dashboard-Screenshots mit Messwerten:
-
-- [Loadtest mit hoher Last und wachsender Queue](docs/screenshots/grafana-loadtest-1.png)
-- [Loadtest mit acht virtuellen Nutzern](docs/screenshots/grafana-loadtest-2.png)
+Details zu Konfiguration, Tests und Code-Aufbau: [Entwickleranleitung](docs/developer-guide.md).
 
 ## Schlusswort
 

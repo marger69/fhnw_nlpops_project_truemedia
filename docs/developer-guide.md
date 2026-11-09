@@ -70,7 +70,9 @@ die Kommunikation zwischen den Compose-Diensten bestimmt.
 Grafana verwendet Prometheus automatisch als Datenquelle. Beim ersten Login
 lauten die lokalen Standard-Zugangsdaten `admin` / `admin`; Grafana fordert
 dazu auf, das Passwort zu ändern. Das Dashboard «NLP Microbatching» wird
-automatisch bereitgestellt.
+automatisch bereitgestellt und als Grafana-Startdashboard konfiguriert.
+Persönliche oder organisationsweite Dashboard-Einstellungen können dieses
+Startdashboard überschreiben.
 
 ### 3. Stack stoppen
 

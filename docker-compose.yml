@@ -23,6 +23,8 @@ services:
     image: grafana/grafana:12.1.1
     ports:
       - "127.0.0.1:3000:3000"
+    environment:
+      GF_DASHBOARDS_DEFAULT_HOME_DASHBOARD_PATH: /var/lib/grafana/dashboards/nlp-dashboard.json
     volumes:
       - grafana_data:/var/lib/grafana
       - ./monitoring/grafana/provisioning/datasources:/etc/grafana/provisioning/datasources:ro
