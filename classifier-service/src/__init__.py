@@ -1,1 +1,1 @@
-"""Classifier service package."""
+"""Paket des Classifier-Service."""

@@ -1,4 +1,4 @@
-"""Classifier tests."""
+"""Tests des Klassifizierers."""
 
 from src import config
 from src.classifier import Classifier

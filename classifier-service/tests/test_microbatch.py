@@ -1,4 +1,4 @@
-"""Microbatch tests."""
+"""Tests für Micro-Batching."""
 
 import asyncio
 

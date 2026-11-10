@@ -1,4 +1,4 @@
-"""Application entry point for the classifier service."""
+"""Einstiegspunkt für die Anwendung des Classifier-Service."""
 
 from contextlib import asynccontextmanager
 
@@ -11,6 +11,7 @@ from src.classifier import Classifier
 from src.metrics import ServiceMetrics
 from src.microbatch import MicroBatcher
 
+# Gemeinsame Service-Objekte für Klassifizierung, Metriken und gebündelte Anfragen.
 classifier = Classifier()
 metrics = ServiceMetrics()
 batcher = MicroBatcher(
@@ -23,6 +24,7 @@ batcher = MicroBatcher(
 
 @asynccontextmanager
 async def lifespan(_: FastAPI):
+    # Micro-Batching während der Laufzeit aktivieren und beim Beenden sauber stoppen.
     batcher.start()
     yield
     await batcher.stop()
@@ -37,6 +39,7 @@ class ClassifyRequest(BaseModel):
     @field_validator("comment")
     @classmethod
     def not_blank(cls, value: str) -> str:
+        # Leere oder nur aus Leerzeichen bestehende Kommentare ablehnen.
         if not value.strip():
             raise ValueError("comment must not be empty")
         return value
@@ -50,11 +53,13 @@ class ClassifyResponse(BaseModel):
 
 @app.get("/health")
 def health() -> dict:
+    # Einfacher Erreichbarkeitscheck für Monitoring und Orchestrierung.
     return {"status": "ok"}
 
 
 @app.get("/metrics", include_in_schema=False)
 def get_metrics() -> Response:
+    # Prometheus-Metriken werden in dem von Prometheus erwarteten Format ausgegeben.
     return Response(
         content=generate_latest(metrics.registry),
         media_type=CONTENT_TYPE_LATEST,
@@ -63,5 +68,6 @@ def get_metrics() -> Response:
 
 @app.post("/classify", response_model=ClassifyResponse)
 async def classify(request: ClassifyRequest) -> ClassifyResponse:
+    # Anfrage zur Stapelverarbeitung einreichen und Ergebnis als API-Antwort zurückgeben.
     label, score = await batcher.submit(request.comment)
     return ClassifyResponse(comment=request.comment, label=label, score=score)

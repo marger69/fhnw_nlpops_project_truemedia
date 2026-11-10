@@ -1,4 +1,4 @@
-"""API tests."""
+"""Tests der API."""
 
 from fastapi.testclient import TestClient
 
@@ -8,6 +8,7 @@ from src.classifier import Classifier
 
 def fake_pipeline(texts, candidate_labels, hypothesis_template, batch_size):
     """Liefert für jeden übergebenen Text ein simuliertes Klassifikationsergebnis."""
+    # Sicherstellen, dass der Classifier die Kommentare stapelweise übergibt.
     assert isinstance(texts, list)
     return [
         {
@@ -21,6 +22,7 @@ def fake_pipeline(texts, candidate_labels, hypothesis_template, batch_size):
     ]
 
 
+# Reales Modell im API-Test durch eine schnelle, deterministische Pipeline ersetzen.
 main.classifier = Classifier(pipeline=fake_pipeline)
 
 
@@ -29,6 +31,7 @@ def test_classify_returns_label_and_score():
     with TestClient(main.app) as client:
         response = client.post("/classify", json={"comment": "Ich bin dagegen."})
         metrics = client.get("/metrics", follow_redirects=False)
+    # Antwort, gerundeten Score und erwartete Prometheus-Ausgabe prüfen.
     assert response.status_code == 200
     assert response.json() == {
         "comment": "Ich bin dagegen.",
