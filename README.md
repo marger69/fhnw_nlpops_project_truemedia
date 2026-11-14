@@ -153,6 +153,13 @@ Starte zuerst den Classifier-Service mit Docker Compose oder lokal mit Python
 und lasse ihn laufen. Für die Web-App wird Python 3.11 oder neuer benötigt;
 zusätzliche Python-Pakete sind nicht erforderlich.
 
+Die Web-App verwendet standardmässig den Compose-Host-Port 8002. Läuft der
+Classifier lokal auf Port 8000, setze vor dem Start der Web-App im selben
+Terminal `CLASSIFIER_URL` auf `http://127.0.0.1:8000`: in PowerShell mit
+`$env:CLASSIFIER_URL = "http://127.0.0.1:8000"`, unter Linux/macOS mit
+`export CLASSIFIER_URL=http://127.0.0.1:8000`. Bei einem geänderten
+Compose-Host-Port muss `CLASSIFIER_URL` entsprechend angepasst werden.
+
 Öffne ein separates Terminal im Projektverzeichnis und starte die Web-App:
 
 **Windows (PowerShell):**

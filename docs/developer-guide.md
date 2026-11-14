@@ -7,6 +7,7 @@ Docker-Compose-Start.
 ## Inhaltsverzeichnis
 
 - [Voraussetzungen](#voraussetzungen)
+- [Portübersicht](#portübersicht)
 - [Variante A: Monitoring-Stack mit Docker Compose starten](#variante-a-monitoring-stack-mit-docker-compose-starten)
 - [Variante B: lokal mit Python starten](#variante-b-lokal-mit-python-starten)
 - [API verwenden](#api-verwenden)
@@ -20,6 +21,20 @@ Docker-Compose-Start.
 - Docker Desktop mit gestarteter Linux-Engine für Docker Compose und den k6-Lasttest
 - Internetzugang beim ersten Start: Das Modell `facebook/bart-large-mnli` wird
   von Hugging Face geladen (ca. 1.6 GB)
+
+## Portübersicht
+
+| Dienst | Host-Port | Container-Port | Hinweis |
+|---|---|---|---|
+| Classifier mit Docker Compose | 8002 | 8000 | Host-Port mit `CLASSIFIER_HOST_PORT` änderbar |
+| Classifier lokal mit Python | 8000 | – | Ohne Docker Compose |
+| Optionale Web-App | 8080 | – | Lokaler Port mit `GUI_PORT` änderbar |
+| Prometheus | 9090 | 9090 | Docker Compose |
+| Grafana | 3000 | 3000 | Docker Compose |
+| k6-Web-Dashboard | 5665 | 5665 | Beim dokumentierten Lasttest |
+
+Innerhalb des Compose-Netzwerks erreicht Prometheus den Classifier unter
+`classifier-service:8000`; vom Host aus wird standardmässig Port 8002 verwendet.
 
 ## Variante A: Monitoring-Stack mit Docker Compose starten
 
@@ -222,12 +237,14 @@ beschrieben und lass das Stack-Terminal geöffnet.
 damit das Modell vor dem Lasttest geladen wird:
 
 ```powershell
-Invoke-RestMethod -Uri http://localhost:8000/classify -Method Post `
+Invoke-RestMethod -Uri http://localhost:8002/classify -Method Post `
   -ContentType 'application/json' `
   -Body '{"comment":"Ich habe den Artikel nicht gelesen, aber ich bin trotzdem dagegen."}'
 ```
 
 Beim ersten Aufruf können Download und Laden des Modells länger dauern.
+Falls `CLASSIFIER_HOST_PORT` geändert wurde, verwende diesen Host-Port anstelle
+von 8002.
 
 ### 2. Lasttest ausführen
 
@@ -244,8 +261,10 @@ docker run --rm -i `
   grafana/k6 run -
 ```
 
-Standardmässig sendet k6 an `http://host.docker.internal:8002`. Bei Bedarf kann
-die Zieladresse mit der Umgebungsvariable `BASE_URL` überschrieben werden.
+Standardmässig sendet k6 an `http://host.docker.internal:8002`. Bei einem
+geänderten Compose-Host-Port muss `BASE_URL` an den k6-Container übergeben
+werden. Ergänze dafür beim obigen `docker run` vor `grafana/k6` zum Beispiel
+`-e BASE_URL=http://host.docker.internal:8003`, wenn der Host-Port 8003 ist.
 
 Öffne während des Tests das k6-Dashboard unter `http://localhost:5665`. Der
 Port 5665 muss frei sein. Nach dem Test zeigt k6 die Zusammenfassung im

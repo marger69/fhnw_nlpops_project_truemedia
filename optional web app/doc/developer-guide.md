@@ -78,6 +78,10 @@ entfernen die vorherige Ergebnis- oder Fehleranzeige.
 - Beim ersten Klassifikationsaufruf benötigt der Classifier gegebenenfalls
   Internetzugang und Zeit, um das Modell herunterzuladen und zu laden.
 
+Für einen lokal mit Python gestarteten Classifier oder einen geänderten
+Compose-Host-Port muss `CLASSIFIER_URL` vor dem Start angepasst werden; siehe
+[Konfiguration](#konfiguration).
+
 Im Projektverzeichnis in einem separaten Terminal starten:
 
 ```powershell
@@ -121,6 +125,9 @@ mit Python gestarteter Classifier bleibt standardmässig unter Port 8000
 erreichbar; in diesem Fall muss `CLASSIFIER_URL` entsprechend gesetzt werden.
 Bei einem angepassten Compose-Host-Port ist `CLASSIFIER_URL` ebenfalls auf
 diesen Port zu setzen.
+
+Eine Übersicht aller Standard-Ports steht in der
+[Entwickleranleitung](../../docs/developer-guide.md#portübersicht).
 
 ## Fehlerbehandlung und Tests
 
