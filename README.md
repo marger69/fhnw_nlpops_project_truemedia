@@ -113,7 +113,7 @@ Klassifikationsaufruf wird das Modell aus dem Internet geladen (ca. 1.6 GB).
 
 #### 1. Stack starten
 
-**Direkt mit Docker Compose:** Wenn Docker Desktop und die Docker Engine
+**Direkt mit Docker Compose:** Wenn **Docker Desktop und die Docker Engine**
 bereits laufen, führe im Projektverzeichnis in PowerShell Folgendes aus:
 
 ```powershell
@@ -126,11 +126,14 @@ Das Terminal bleibt geöffnet, solange der Stack läuft.
 
 | Dienst | Adresse |
 |---|---|
-| Classifier-API / Health | [http://localhost:8000/health](http://localhost:8000/health) |
-| FastAPI / Swagger UI | [http://127.0.0.1:8000/docs](http://127.0.0.1:8000/docs) |
+| Classifier-API / Health | [http://localhost:8002/health](http://localhost:8002/health) |
+| FastAPI / Swagger UI | [http://127.0.0.1:8002/docs](http://127.0.0.1:8002/docs) |
 | Prometheus | [http://localhost:9090](http://localhost:9090) |
 | Grafana / NLP Microbatching | [http://localhost:3000/d/nlp-microbatching/nlp-microbatching](http://localhost:3000/d/nlp-microbatching/nlp-microbatching) |
 | Optionale Web-App (wenn gestartet) | [http://127.0.0.1:8080](http://127.0.0.1:8080) |
+
+Der Classifier ist auf dem Host standardmässig unter Port 8002 erreichbar.
+Mit `CLASSIFIER_HOST_PORT` lässt sich der Host-Port bei Bedarf ändern.
 
 Beim ersten Klassifikationsaufruf lädt der Classifier das Modell. Die Daten
 werden im Docker-Volume `model_cache` gespeichert. Prometheus liest die
@@ -143,18 +146,6 @@ dazu auf, das Passwort zu ändern. Das Dashboard «NLP Microbatching» wird
 automatisch bereitgestellt und als Grafana-Startdashboard konfiguriert.
 Persönliche oder organisationsweite Dashboard-Einstellungen können dieses
 Startdashboard überschreiben.
-
-#### 3. Stack stoppen
-
-Drücke im Terminal, in dem der Stack läuft, `Ctrl+C`. Alternativ öffne ein
-zweites PowerShell-Terminal im Projektverzeichnis und führe aus:
-
-```powershell
-docker compose down
-```
-
-Die Monitoring-Daten bleiben in den Volumes `prometheus_data` und
-`grafana_data` erhalten.
 
 ### Optional Web App
 
@@ -187,7 +178,7 @@ Weitere Informationen zur Konfiguration und Fehlerbehandlung stehen im
 ### API-Beispiel
 
 ```powershell
-Invoke-RestMethod -Uri http://localhost:8000/classify -Method Post `
+Invoke-RestMethod -Uri http://localhost:8002/classify -Method Post `
   -ContentType 'application/json' `
   -Body '{"comment":"Ich habe den Artikel nicht gelesen, aber ich bin trotzdem dagegen."}'
 ```

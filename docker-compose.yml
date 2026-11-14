@@ -3,9 +3,19 @@ services:
     build:
       context: ./classifier-service
     ports:
-      - "127.0.0.1:8000:8000"
+      - "127.0.0.1:${CLASSIFIER_HOST_PORT:-8002}:8000"
     volumes:
       - model_cache:/root/.cache/huggingface
+    healthcheck:
+      test:
+        - CMD
+        - python
+        - -c
+        - "import json, sys, urllib.request; payload = urllib.request.urlopen('http://127.0.0.1:8000/health', timeout=5).read().decode('utf-8'); print(payload); sys.exit(0 if json.loads(payload).get('status') == 'ok' else 1)"
+      interval: 10s
+      timeout: 5s
+      retries: 5
+      start_period: 20s
     restart: unless-stopped
 
   prometheus:
@@ -16,7 +26,8 @@ services:
       - ./monitoring/prometheus/prometheus.yml:/etc/prometheus/prometheus.yml:ro
       - prometheus_data:/prometheus
     depends_on:
-      - classifier-service
+      classifier-service:
+        condition: service_healthy
     restart: unless-stopped
 
   grafana:
@@ -31,7 +42,8 @@ services:
       - ./monitoring/grafana/provisioning/dashboards:/etc/grafana/provisioning/dashboards:ro
       - ./monitoring/grafana/dashboards:/var/lib/grafana/dashboards:ro
     depends_on:
-      - prometheus
+      prometheus:
+        condition: service_started
     restart: unless-stopped
 
 volumes:

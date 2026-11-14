@@ -58,7 +58,7 @@ powershell -NoProfile -ExecutionPolicy Bypass -File .\scripts\start-monitoring.p
 
 | Dienst | Adresse |
 |---|---|
-| Classifier-API | `http://localhost:8000`, `http://127.0.0.1:8000/docs` |
+| Classifier-API | `http://localhost:8002`, `http://127.0.0.1:8002/docs` |
 | Prometheus | `http://localhost:9090` |
 | Grafana | `http://localhost:3000` |
 
@@ -244,7 +244,7 @@ docker run --rm -i `
   grafana/k6 run -
 ```
 
-Standardmässig sendet k6 an `http://host.docker.internal:8000`. Bei Bedarf kann
+Standardmässig sendet k6 an `http://host.docker.internal:8002`. Bei Bedarf kann
 die Zieladresse mit der Umgebungsvariable `BASE_URL` überschrieben werden.
 
 Öffne während des Tests das k6-Dashboard unter `http://localhost:5665`. Der

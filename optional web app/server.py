@@ -22,7 +22,7 @@ STATIC_FILES = {
 
 def classifier_url():
     """Ermittelt den konfigurierten Classifier-Endpunkt und prüft die Basis-URL."""
-    base = os.environ.get("CLASSIFIER_URL", "http://127.0.0.1:8000").rstrip("/")
+    base = os.environ.get("CLASSIFIER_URL", "http://127.0.0.1:8002").rstrip("/")
     parsed = urlsplit(base)
     if parsed.scheme not in ("http", "https") or not parsed.hostname or parsed.query or parsed.fragment:
         raise ValueError("CLASSIFIER_URL muss eine HTTP(S)-Basis-URL ohne Query oder Fragment sein.")

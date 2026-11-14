@@ -4,7 +4,7 @@ import http from 'k6/http';
 import { Counter, Rate, Trend } from 'k6/metrics';
 
 // Die Zieladresse lässt sich für andere Umgebungen über BASE_URL überschreiben.
-const BASE_URL = __ENV.BASE_URL || 'http://host.docker.internal:8000';
+const BASE_URL = __ENV.BASE_URL || 'http://host.docker.internal:8002';
 
 // Zusätzliche k6-Metriken für erfolgreiche und fehlgeschlagene Anfragen.
 export const requestsCompleted = new Counter('requests_completed');

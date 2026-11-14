@@ -98,7 +98,7 @@ voneinander gestartet und beendet.
 
 | Umgebungsvariable | Standardwert | Bedeutung |
 |---|---|---|
-| `CLASSIFIER_URL` | `http://127.0.0.1:8000` | Basis-URL des Classifiers ohne `/classify`; optional mit Pfadpräfix |
+| `CLASSIFIER_URL` | `http://127.0.0.1:8002` | Basis-URL des Classifiers ohne `/classify`; optional mit Pfadpräfix |
 | `CLASSIFIER_TIMEOUT_SECONDS` | `120` | Timeout für die Serviceverbindung in Sekunden, grösser als 0 und höchstens 3600 |
 | `GUI_PORT` | `8080` | Lokaler Port der GUI, 1 bis 65535 |
 
@@ -106,7 +106,7 @@ Die Werte müssen vor dem Start des GUI-Servers gesetzt werden, zum Beispiel
 in PowerShell:
 
 ```powershell
-$env:CLASSIFIER_URL = "http://127.0.0.1:8000"
+$env:CLASSIFIER_URL = "http://127.0.0.1:8002"
 $env:CLASSIFIER_TIMEOUT_SECONDS = "180"
 $env:GUI_PORT = "8081"
 python ".\optional web app\server.py"
@@ -114,8 +114,13 @@ python ".\optional web app\server.py"
 
 Auf Linux/macOS können Variablen vor dem Start mit `export` gesetzt werden.
 Eine `.env`-Datei wird nicht automatisch eingelesen. Im
-Docker-Compose-Standard wird der Classifier auf dem Host unter Port 8000
+Docker-Compose-Standard wird der Classifier auf dem Host unter Port 8002
 erreichbar gemacht; die GUI läuft auf dem Host, nicht in diesem Compose-Stack.
+Der Host-Port kann mit `CLASSIFIER_HOST_PORT` überschrieben werden. Ein lokal
+mit Python gestarteter Classifier bleibt standardmässig unter Port 8000
+erreichbar; in diesem Fall muss `CLASSIFIER_URL` entsprechend gesetzt werden.
+Bei einem angepassten Compose-Host-Port ist `CLASSIFIER_URL` ebenfalls auf
+diesen Port zu setzen.
 
 ## Fehlerbehandlung und Tests
 
