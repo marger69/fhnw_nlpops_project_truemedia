@@ -7,8 +7,8 @@ NLP-Operations-Projektarbeit im Rahmen des CAS AI Operations an der FHNW.
 - **Projektarbeit:** NLP Operations
 - **Referent:** Claudio Paonessa
 - **Autor:** Markus Gerber
-- **Erstellt:** 01.11.–22.11.2026
-- **Aufwand:** ca. 24 Stunden
+- **Erstellt:** 01.11. – 22.11.2026
+- **Aufwand:** ca. 30 Stunden
 
 ## Inhaltsverzeichnis
 
